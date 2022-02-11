@@ -1,0 +1,13 @@
+Para	Value
+Sex	male_female
+Species	horse
+Start	0
+End	6000
+WinSize	1000
+StepSize	500
+Allele	
+longitudest	-143
+longitudeend	143
+latitudest	35
+latitudeend	73
+type	ReadsCounts

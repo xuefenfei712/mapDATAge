@@ -1,0 +1,2 @@
+This draw all the figures as PDF and html files, after the parameter file was imported. <br/>
+Note: a root path should be given (eg C:\\), and press the button "PATH TO YOUR PROJECT FOLDER" to your working folder.<br/>

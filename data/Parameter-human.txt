@@ -1,0 +1,13 @@
+Para	Value
+Sex	male_female
+Species	human
+Start	0
+End	10000
+WinSize	1000
+StepSize	500
+Allele	D
+longitudest	-9
+longitudeend	142
+latitudest	35
+latitudeend	73
+type	Genotype
