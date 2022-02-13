@@ -1,10 +1,10 @@
 library(ggplot2)
 library("forcats")
 AllePlot=function(dat,sex,species,gt,windowsize,stepsize,st,end,snp,lat1,lat2,long1,long2,ymin,ymax){
-  d=dat[,c("Sample","Age","latitude","longitude","Sex","Site","Species",names(dat)[grep(snp,names(dat))])]
+  d=dat[,c("Sample","Age","Latitude","Longitude","Sex","Site","Species",names(dat)[grep(snp,names(dat))])]
   d$count=apply(d[grep(snp,colnames(d))],1,sum)
   d=d[d$count>0,]
-  data=d[d$Sex%in%sex & d$Species%in%species & d$Age >=st & d$Age <end & d$latitude >= as.numeric(lat1) & d$latitude <as.numeric(lat2) & d$longitude >= as.numeric(long1) & d$longitude < as.numeric(long2),]
+  data=d[d$Sex%in%sex & d$Species%in%species & d$Age >=st & d$Age <end & d$Latitude >= as.numeric(lat1) & d$Latitude <as.numeric(lat2) & d$Longitude >= as.numeric(long1) & d$Longitude < as.numeric(long2),]
 
 time1=seq(floor(st/100)*100,ceiling(end/100)*100-windowsize,stepsize)
 time2=seq(floor(st/100)*100+windowsize,ceiling(end/100)*100,stepsize)
@@ -23,8 +23,8 @@ for(i in 1:nrow(timtab)){
     timtab[i,6]=0
     timtab[i,7]=0
   }else{
-     timtab[i,5]=mean(a, na.rm = TRUE)
-      timtab[i,6]=sqrt(timtab[i,5]*(1-timtab[i,5])/length(a))
+     timtab[i,5]=mean(a, na.rm = TRUE)/2
+      timtab[i,6]=sqrt(timtab[i,5]*(1-timtab[i,5])/length(a))#sqrt(sd(a, na.rm = TRUE)/length(a))#
       timtab[i,7]=length(a)
   }
  
@@ -46,8 +46,8 @@ timtab$label=fct_inorder(timtab$label)
 
 AllePlotCounts=function(dat,sex,species,gt,windowsize,stepsize,st,end,snp,lat1,lat2,long1,long2,ymin,ymax,sampletime){
     sampletime=as.numeric(sampletime)
-  d=dat[,c("Sample","Age","latitude","longitude","Sex","Site","Species",names(dat)[grep(snp,names(dat))])]
-   data=d[d$Sex%in%sex & d$Species%in%species & d$Age >=st & d$Age <end & d$latitude >= as.numeric(lat1) & d$latitude <as.numeric(lat2) & d$longitude >= as.numeric(long1) & d$longitude < as.numeric(long2),]
+  d=dat[,c("Sample","Age","Latitude","Longitude","Sex","Site","Species",names(dat)[grep(snp,names(dat))])]
+   data=d[d$Sex%in%sex & d$Species%in%species & d$Age >=st & d$Age <end & d$Latitude >= as.numeric(lat1) & d$Latitude <as.numeric(lat2) & d$Longitude >= as.numeric(long1) & d$Longitude < as.numeric(long2),]
    data$Count=if_else(rowSums(data[,names(data)[grep(snp,names(data))]])>0,1,0)
    data=data[data$Count>0,]
    data$CountReads=apply(data %>% select(matches(snp)),1,sum)

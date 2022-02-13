@@ -1,4 +1,4 @@
-Sample	Species	Sex	Site	latitude	longitude	Age	SNP_chr8.20644555_TBX3_A	SNP_chr8.20644555_TBX3_G
+Sample	Species	Sex	Site	Latitude	Longitude	Age	SNP_chr8.20644555_TBX3_A	SNP_chr8.20644555_TBX3_G
 18ELTu18_Spa_m588	horse	male	ElTurunuelo_Spain	38.95	-6.06	2538	1	0
 AC7970_Tur_m290	horse	male	Acemhoyuk_Turkey	38.41	33.84	2240	3	0
 AC8811_Tur_m2125	horse	female	Acemhoyuk_Turkey	38.41	33.84	4075	1	3

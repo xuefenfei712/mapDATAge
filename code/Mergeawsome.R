@@ -48,13 +48,13 @@ filter=function(data){
 }
 MergeawsomeCount=function(data,snp=NULL,mult=FALSE,drop=FALSE){
     if(!is.null(snp)){
-      d=data[,c("Sample","Age","latitude","longitude","Sex","Site","Species",names(data)[grep(snp,names(data))])]
+      d=data[,c("Sample","Age","Latitude","Longitude","Sex","Site","Species",names(data)[grep(snp,names(data))])]
       #d$Count=rep(1,nrow(d))
       d$Count=if_else(rowSums(d[,names(d)[grep(snp,names(d))]])>0,1,0)
       d=d[d$Count>0,]
       d$ReadCount=apply(d %>% select(matches(snp)),1,sum)
       # Convert to simple feature collection object (points)
-      d2 <- st_as_sf(d, coords = c("longitude", "latitude"))
+      d2 <- st_as_sf(d, coords = c("Longitude", "Latitude"))
       # Get intersection of the same object
       d3 <- st_intersection(d2)
       # See origins columns (which elements intersects)
@@ -83,12 +83,12 @@ MergeawsomeCount=function(data,snp=NULL,mult=FALSE,drop=FALSE){
       # Bind list points
       new_d <- do.call(rbind, list)
       # Add lat and long data as columns
-      new_d$longitude <- st_coordinates(new_d)[, "X"]
-      new_d$latitude <- st_coordinates(new_d)[, "Y"]
+      new_d$Longitude <- st_coordinates(new_d)[, "X"]
+      new_d$Latitude <- st_coordinates(new_d)[, "Y"]
       # Transform to data frame adding null to geometries
       st_geometry(new_d) <- NULL
       as.data.frame(new_d)
-      #new_d[,"NON"]=1-new_d[,paste("SNP",snp,getallename(data,snp)[1],sep="_")]-new_d[,paste("SNP",snp,getallename(data,snp)[2],sep="_")]
+      new_d[,"NON"]=1-new_d[,paste("SNP",snp,getallename(data,snp)[1],sep="_")]-new_d[,paste("SNP",snp,getallename(data,snp)[2],sep="_")]
       new_d$SecondSite=paste(as.character(new_d$Site),"_layer",sep="")
       as.data.frame(new_d)
     }else if(mult==TRUE){
@@ -107,7 +107,7 @@ MergeawsomeCount=function(data,snp=NULL,mult=FALSE,drop=FALSE){
         }
       }
       d=data
-      d2 <- st_as_sf(d, coords = c("longitude", "latitude"))
+      d2 <- st_as_sf(d, coords = c("Longitude", "Latitude"))
       d3 <- st_intersection(d2)
       d3$origins
       if(length(grep("SNP",names(d)))>0){
@@ -130,8 +130,8 @@ MergeawsomeCount=function(data,snp=NULL,mult=FALSE,drop=FALSE){
           return(point)
         })
         new_d <- do.call(rbind, list)
-        new_d$longitude <- st_coordinates(new_d)[, "X"]
-        new_d$latitude <- st_coordinates(new_d)[, "Y"]
+        new_d$Longitude <- st_coordinates(new_d)[, "X"]
+        new_d$Latitude <- st_coordinates(new_d)[, "Y"]
         #new_d$SecondSite=new_d$Site
         st_geometry(new_d) <- NULL
         #new_d=new_d[apply(new_d %>% select(starts_with("SNP")),1,sum)>0,]
@@ -144,11 +144,11 @@ MergeawsomeCount=function(data,snp=NULL,mult=FALSE,drop=FALSE){
 }
   Mergeawsome=function(data,snp=NULL,type=NULL,mult=FALSE,drop=FALSE){
     if(!is.null(snp)){
-      d=data[,c("Sample","Age","latitude","longitude","Sex","Site","Species",names(data)[grep(snp,names(data))])]
+      d=data[,c("Sample","Age","Latitude","Longitude","Sex","Site","Species",names(data)[grep(snp,names(data))])]
       #d$Count=rep(1,nrow(d))
       d$Count=if_else(rowSums(d[,names(d)[grep(snp,names(d))]])>0,1,0)
       d=d[d$Count>0,]
-      d2 <- st_as_sf(d, coords = c("longitude", "latitude"))
+      d2 <- st_as_sf(d, coords = c("Longitude", "Latitude"))
       d3 <- st_intersection(d2)
       d3$origins
       list <- lapply(1:length(d3$origins), function(x) {
@@ -165,25 +165,25 @@ MergeawsomeCount=function(data,snp=NULL,mult=FALSE,drop=FALSE){
         point$Count <- round(sum(d2[d3$origins[[x]], ]$Count, na.rm = TRUE),2)
         aname=getallename(data,snp)
         a=paste("SNP_",snp,"_",aname[1],sep="")
-        point[,a] <- round(mean(matrix(unlist(d2[d3$origins[[x]],a]),ncol=3,byrow=FALSE)[,1], na.rm = TRUE),2)
+        point[,a] <- round(mean(matrix(unlist(d2[d3$origins[[x]],a]),ncol=3,byrow=FALSE)[,1], na.rm = TRUE)/2,2)
         d=paste("SNP_",snp,"_",aname[2],sep="")
-        point[,d] <- round(mean(matrix(unlist(d2[d3$origins[[x]],d]),ncol=3,byrow=FALSE)[,1], na.rm = TRUE),2)
+        point[,d] <- round(mean(matrix(unlist(d2[d3$origins[[x]],d]),ncol=3,byrow=FALSE)[,1], na.rm = TRUE)/2,2)
         return(point)
       })
       # Bind list points
       new_d <- do.call(rbind, list)
-      new_d$longitude <- st_coordinates(new_d)[, "X"]
-      new_d$latitude <- st_coordinates(new_d)[, "Y"]
+      new_d$Longitude <- st_coordinates(new_d)[, "X"]
+      new_d$Latitude <- st_coordinates(new_d)[, "Y"]
       st_geometry(new_d) <- NULL
       
       as.data.frame(new_d)
-      #new_d[,"NON"]=1-new_d[,paste("SNP",snp,getallename(data,snp)[1],sep="_")]-new_d[,paste("SNP",snp,getallename(data,snp)[2],sep="_")]
+      new_d[,"NON"]=1-new_d[,paste("SNP",snp,getallename(data,snp)[1],sep="_")]-new_d[,paste("SNP",snp,getallename(data,snp)[2],sep="_")]
       new_d$SecondSite=paste(as.character(new_d$Site),"_layer",sep="")
       as.data.frame(new_d)
     }else if(!is.null(type)){
       d=data
       d$Count=rep(1,nrow(d))
-      d2 <- st_as_sf(d, coords = c("longitude", "latitude"))
+      d2 <- st_as_sf(d, coords = c("Longitude", "Latitude"))
       d3 <- st_intersection(d2)
       d3$origins
       if(length(grep(type,names(d)))>0){
@@ -206,8 +206,8 @@ MergeawsomeCount=function(data,snp=NULL,mult=FALSE,drop=FALSE){
           return(point)
         })
         new_d <- do.call(rbind, list)
-        new_d$longitude <- st_coordinates(new_d)[, "X"]
-        new_d$latitude <- st_coordinates(new_d)[, "Y"]
+        new_d$Longitude <- st_coordinates(new_d)[, "X"]
+        new_d$Latitude <- st_coordinates(new_d)[, "Y"]
         new_d$SecondSite=new_d$Site
         st_geometry(new_d) <- NULL
         as.data.frame(new_d)
@@ -215,7 +215,7 @@ MergeawsomeCount=function(data,snp=NULL,mult=FALSE,drop=FALSE){
         data=data[apply(data %>% select(starts_with("SNP")),1,sum)>0,]
         d=data
         d$Counts=rep(1,nrow(d))
-        d2 <- st_as_sf(d, coords = c("longitude", "latitude"))
+        d2 <- st_as_sf(d, coords = c("Longitude", "Latitude"))
         d3 <- st_intersection(d2)
         d3$origins
         if(length(grep("SNP",names(d)))>0){
@@ -238,8 +238,8 @@ MergeawsomeCount=function(data,snp=NULL,mult=FALSE,drop=FALSE){
             return(point)
           })
           new_d <- do.call(rbind, list)
-          new_d$longitude <- st_coordinates(new_d)[, "X"]
-          new_d$latitude <- st_coordinates(new_d)[, "Y"]
+          new_d$Longitude <- st_coordinates(new_d)[, "X"]
+          new_d$Latitude <- st_coordinates(new_d)[, "Y"]
           #new_d$SecondSite=new_d$Site
           st_geometry(new_d) <- NULL
           #new_d=new_d[apply(new_d %>% select(starts_with("SNP")),1,sum)>0,]
@@ -251,7 +251,7 @@ MergeawsomeCount=function(data,snp=NULL,mult=FALSE,drop=FALSE){
         }else{
         d=data
         d$Count=rep(1,nrow(d))
-        d2 <- st_as_sf(d, coords = c("longitude", "latitude"))
+        d2 <- st_as_sf(d, coords = c("Longitude", "Latitude"))
         d3 <- st_intersection(d2)
         d3$origins
         list <- lapply(1:length(d3$origins), function(x) {
@@ -274,8 +274,8 @@ MergeawsomeCount=function(data,snp=NULL,mult=FALSE,drop=FALSE){
         })
         new_d <- do.call(rbind, list)
         # Add lat and long data as columns
-        new_d$longitude <- st_coordinates(new_d)[, "X"]
-        new_d$latitude <- st_coordinates(new_d)[, "Y"]
+        new_d$Longitude <- st_coordinates(new_d)[, "X"]
+        new_d$Latitude <- st_coordinates(new_d)[, "Y"]
         # Transform to data frame adding null to geometries
         st_geometry(new_d) <- NULL
         as.data.frame(new_d)
@@ -309,7 +309,7 @@ automaticFigures=function(par,path){
     }
     
   #######plot map#############
-  dat=data[data$Age >=st & data$Age <end & data$longitude >=longitudest & data$longitude <longitudeend & data$latitude>=latitudest &  data$latitude <latitudeend,]
+  dat=data[data$Age >=st & data$Age <end & data$Longitude >=longitudest & data$Longitude <longitudeend & data$Latitude>=latitudest &  data$Latitude <latitudeend,]
   data1=dat[dat$Sex%in%sexa & dat$Species%in%spexa,]
   data1$Count=if_else(apply(data1[,names(data1)[grep("SNP_",names(data1))]],1,sum)>0,1,0)
   data1=data1[data1$Count>0,]
@@ -373,7 +373,7 @@ for(n in gt1){
         timtab[i,6]=0
         timtab[i,7]=0
       }else{
-        timtab[i,5]=mean(a, na.rm = TRUE)
+        timtab[i,5]=mean(a, na.rm = TRUE)/2
         timtab[i,6]=sqrt(timtab[i,5]*(1-timtab[i,5])/length(a))
         timtab[i,7]=length(a)
       }
@@ -414,12 +414,12 @@ for(n in gt1){
 tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
 basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
   addTiles(tilesURL) %>%
-  fitBounds(min(datamap$longitude),min(datamap$latitude),max(datamap$longitude),max(datamap$latitude))
+  fitBounds(min(datamap$Longitude),min(datamap$Latitude),max(datamap$Longitude),max(datamap$Latitude))
 
 colorpal <- colorNumeric("Set1", datamap$Age)
 sizes <- sizeNumeric((datamap$Count), baseSize = mean(datamap$Count))
 map=basemap %>%
-  addCircleMarkers(datamap$longitude, datamap$latitude,color = "#777777",radius=sqrt(sizes)*3#datamap$Count*1.5
+  addCircleMarkers(datamap$Longitude, datamap$Latitude,color = "#777777",radius=sqrt(sizes)*3#datamap$Count*1.5
                    ,weight=1,
                    fillColor = colorpal(datamap$Age), fillOpacity = 0.9,popup= paste0(
                      "<div>","<h6>","<br>",datamap$Sample,"<h6>",
@@ -447,17 +447,17 @@ sizes <- sizeNumeric((datamap$Count), baseSize = mean(datamap$Count))
 #tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
 basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
   addTiles(tilesURL) %>%
-   fitBounds(min(datamap$longitude)+1,min(datamap$latitude)+1,max(datamap$longitude)-1,max(datamap$latitude)-1) %>%
+   fitBounds(min(datamap$Longitude)+1,min(datamap$Latitude)+1,max(datamap$Longitude)-1,max(datamap$Latitude)-1) %>%
   addResetMapButton() %>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "topright")
 piemap=basemap %>%
   addMinicharts(
-    datamap$longitude, datamap$latitude,
-    chartdata =  cbind(datamap %>% select(starts_with("SNP_"))),
+    datamap$Longitude, datamap$Latitude,
+    chartdata =  cbind(datamap %>% select(starts_with("SNP_")),datamap$NON),
     maxValues = maxValue,
     type ="pie",
     colorPalette = brewer.pal(11, "RdYlGn")[c(1,9,3,5,6)],
     popup = popupArgs(
-      labels = substring(names(datamap)[grep("SNP",names(datamap))],nchar(names(datamap)[grep("SNP",names(datamap))]),nchar(names(datamap)[grep("SNP",names(datamap))])),
+      labels = c(substring(names(datamap)[grep("SNP",names(datamap))],nchar(names(datamap)[grep("SNP",names(datamap))]),nchar(names(datamap)[grep("SNP",names(datamap))])),"NON"),
       html = paste0(
         "<div>","<h6>","<br>",datamap$Sample,"<h6>",
         "<h7>","Sex: ",datamap$Sex,"<br>",
@@ -480,13 +480,13 @@ if(length(grep("Anc",names(data1)))>0){
   #tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
   basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
     addTiles(tilesURL) %>%
-    fitBounds(min(datamap1$longitude)+1,min(datamap1$latitude)+1,max(datamap1$longitude)-1,max(datamap1$latitude)-1) %>%
+    fitBounds(min(datamap1$Longitude)+1,min(datamap1$Latitude)+1,max(datamap1$Longitude)-1,max(datamap1$Latitude)-1) %>%
     addResetMapButton() %>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "topright")
   maxValue=1
   ancescomp=names(datamap1)[grep("Anc",names(datamap1))]
   ancesmap=basemap %>%
     addMinicharts(
-      datamap1$longitude, datamap1$latitude,
+      datamap1$Longitude, datamap1$Latitude,
       chartdata =  datamap1[,ancescomp],
       maxValues = maxValue,
       type ="pie",legend=TRUE,
@@ -530,7 +530,7 @@ mergeCAT=function(data,catname){
   ymax=as.data.frame(ymax)
   colnames(ymax)=paste(catname,yname,sep="_")
   ymax$Count=apply(ymax,1,sum)
-  yresult=cbind(data2[,c("Sample","Age","Site","latitude","longitude","Sex","Species")],ymax)
+  yresult=cbind(data2[,c("Sample","Age","Site","Latitude","Longitude","Sex","Species")],ymax)
   as.data.frame(yresult)
   Mergeawsome(yresult,type=catname)
  }

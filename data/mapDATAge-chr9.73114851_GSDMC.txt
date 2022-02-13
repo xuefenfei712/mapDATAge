@@ -1,4 +1,4 @@
-Sample	Species	Sex	Site	latitude	longitude	Age	SNP_chr9.73114851_GSDMC_A	SNP_chr9.73114851_GSDMC_C
+Sample	Species	Sex	Site	Latitude	Longitude	Age	SNP_chr9.73114851_GSDMC_A	SNP_chr9.73114851_GSDMC_C
 18ELTu18_Spa_m588	horse	male	ElTurunuelo_Spain	38.95	-6.06	2538	0	4
 AC7970_Tur_m290	horse	male	Acemhoyuk_Turkey	38.41	33.84	2240	0	0
 AC8811_Tur_m2125	horse	female	Acemhoyuk_Turkey	38.41	33.84	4075	0	3

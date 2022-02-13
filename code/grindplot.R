@@ -15,10 +15,10 @@ gridplot=function(data,st,end,grindsize,snp,path){
   tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
   basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
     addTiles(tilesURL) %>%
-    fitBounds(min(data$longitude),min(data$latitude),max(data$longitude),max(data$latitude))
+    fitBounds(min(data$Longitude),min(data$Latitude),max(data$Longitude),max(data$Latitude))
   piemap=basemap %>%
     addMinicharts(
-      datamap$longitude, datamap$latitude,
+      datamap$Longitude, datamap$Latitude,
       chartdata =  datamap[,c(paste("SNP_",snp,"_A",sep=""),paste("SNP_",snp,"_D",sep=""))],
       maxValues = maxValue,
       type ="pie",
@@ -37,7 +37,7 @@ gridplot=function(data,st,end,grindsize,snp,path){
     ) %>%
     addLegendSize(position = "bottomleft",col="black",fillColor="white",
                   values = datamap$Count,shape="circle",orientation="horizontal",breaks=4) %>%
-   addLabelOnlyMarkers(min(data$longitude)+3,max(data$latitude)+5,label=paste(timetab[i,2]," - ",timetab[i,1],"BC",sep=""),
+   addLabelOnlyMarkers(min(data$Longitude)+3,max(data$Latitude)+5,label=paste(timetab[i,2]," - ",timetab[i,1],"BC",sep=""),
                        labelOptions = labelOptions(noHide = T, direction = 'top', textOnly = T,style=list("font-size"="20px","color" = "darkblue","font-style"="bold","box-shadow"="3px 3px rgba(0,0,0,0.25)", "border-color" = "rgba(0,0,0,0.5)")))
   
   saveWidget(piemap,paste(path,"/",timetab[i,2],"-",timetab[i,1],"BP-piemap.html",sep=""))
@@ -59,7 +59,7 @@ gridanceplot=function(data,st,end,grindsize,path){
       tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
       basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
         addTiles(tilesURL) %>%
-        fitBounds(min(data$longitude),min(data$latitude),max(data$longitude),max(data$latitude))
+        fitBounds(min(data$Longitude),min(data$Latitude),max(data$Longitude),max(data$Latitude))
   for(i in 1:nrow(timetab)){
     datamap1=data[data$Age >= as.numeric(timetab[i,1]) & data$Age < as.numeric(timetab[i,2]),]
     if(nrow(datamap1)>0){
@@ -67,7 +67,7 @@ gridanceplot=function(data,st,end,grindsize,path){
       ancescomp=names(datamap1)[grep("Anc",names(datamap1))]
       ancesmap=basemap %>%
         addMinicharts(
-          datamap1$longitude, datamap1$latitude,
+          datamap1$Longitude, datamap1$Latitude,
           chartdata =  datamap1[,ancescomp],
           maxValues = maxValue,
           type ="pie",legend=TRUE,
@@ -87,7 +87,7 @@ gridanceplot=function(data,st,end,grindsize,path){
         addLegendSize(position = "bottomleft",col="black",fillColor="white",
                       values = datamap1$Count,shape="circle",orientation="horizontal",breaks=4
         ) %>%
-        addLabelOnlyMarkers(min(data$longitude)+30,max(data$latitude)-1,label=paste(timetab[i,2]," - ",timetab[i,1],"BP",sep=""),
+        addLabelOnlyMarkers(min(data$Longitude)+30,max(data$Latitude)-1,label=paste(timetab[i,2]," - ",timetab[i,1],"BP",sep=""),
                             labelOptions = labelOptions(noHide = T, direction = 'top', textOnly = T,style=list("font-size"="20px","color" = "darkblue","font-style"="bold","box-shadow"="3px 3px rgba(0,0,0,0.25)", "border-color" = "rgba(0,0,0,0.5)")))
       saveWidget(ancesmap,paste(path,"/",timetab[i,2],"-",timetab[i,1],"BP-ancemap.html",sep=""))
           }else{
@@ -113,12 +113,12 @@ gridsnpplot=function(data,st,end,grindsize){
       tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
       basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
         addTiles(tilesURL) %>%
-        fitBounds(min(data$longitude)-0.3,min(data$latitude),max(data$longitude),max(data$latitude))
+        fitBounds(min(data$Longitude)-0.3,min(data$Latitude),max(data$Longitude),max(data$Latitude))
       
       snpcomp=names(datamap2)[grep("SNP",names(datamap2))]
       snpmap=basemap %>%
         addMinicharts(
-          datamap2$longitude, datamap2$latitude,
+          datamap2$Longitude, datamap2$Latitude,
           chartdata =  datamap2[,snpcomp],
           maxValues = maxValue,
           type ="pie",legend=TRUE,
@@ -138,7 +138,7 @@ gridsnpplot=function(data,st,end,grindsize){
         addLegendSize(position = "bottomleft",col="black",fillColor="white",baseSize = 2,
                       values = datamap2$Count,shape="circle",orientation="horizontal",breaks=4
         ) %>%
-        addLabelOnlyMarkers(min(data$longitude)+3,max(data$latitude)+5,label=paste("BP",timetab[i,1],"-",timetab[i,2],sep=""),
+        addLabelOnlyMarkers(min(data$Longitude)+3,max(data$Latitude)+5,label=paste("BP",timetab[i,1],"-",timetab[i,2],sep=""),
                             labelOptions = labelOptions(noHide = T, direction = 'top', textOnly = T,style=list("font-size"="20px","color" = "darkblue","font-style"="bold","box-shadow"="3px 3px rgba(0,0,0,0.25)", "border-color" = "rgba(0,0,0,0.5)")))
       saveWidget(snpmap,paste(timetab[i,1],"-",timetab[i,2],"BP-snpmap.html",sep=""))
     }else{

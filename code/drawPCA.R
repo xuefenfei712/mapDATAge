@@ -5,7 +5,7 @@ drawpca=function(data,sex,species,st,end,pca,lat1,lat2,log1,log2,pc1,pc2){
   lat2=as.numeric(lat2)
   log1=as.numeric(log1)
   log2=as.numeric(log2)
-data1=data[data$Sex%in%sex & data$Species%in%species & data$Age >=st & data$Age <=end & data$latitude >=lat1 & data$latitude <lat2 & data$longitude >=log1 & data$longitude <log2,]
+data1=data[data$Sex%in%sex & data$Species%in%species & data$Age >=st & data$Age <=end & data$Latitude >=lat1 & data$Latitude <lat2 & data$Longitude >=log1 & data$Longitude <log2,]
 data1$PC1=round(data1[,pc1],4);data1$PC2=round(data1[,pc2],4)
 
 plot_ly(data=data1,x=~PC1,y=~PC2,color = ~Age,type = 'scatter', mode = 'markers',colors=brewer_pal(palette = "RdYlGn")(11),symbol=~Species,
