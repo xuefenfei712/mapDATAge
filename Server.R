@@ -3,9 +3,9 @@ server <- function(input, output,session)({
    # Read in data files and validate 
   taxonomy_table <- reactive({
     req(input$in_taxon_table)
-    if (grepl(input$in_taxon_table$datapath, pattern = ".txt") |
-        grepl(input$in_taxon_table$datapath, pattern = ".tsv")) {
-      read.table(input$in_taxon_table$datapath, header = T,
+    if (grepl(input$in_table$datapath, pattern = ".txt") |
+        grepl(input$in_table$datapath, pattern = ".tsv")) {
+      read.table(input$in_table$datapath, header = T,
                  sep = "\t", stringsAsFactors = F,
                  quote = "", comment.char = "")#,fileEncoding = "UTF-16LE"
     }
