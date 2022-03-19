@@ -2,7 +2,7 @@ options(digits = 5, shiny.maxRequestSize = 10 * 1024 ^ 2)
 server <- function(input, output,session)({
    # Read in data files and validate 
   taxonomy_table <- reactive({
-    req(input$in_taxon_table)
+    req(input$in_table)
     if (grepl(input$in_table$datapath, pattern = ".txt") |
         grepl(input$in_table$datapath, pattern = ".tsv")) {
       read.table(input$in_table$datapath, header = T,
