@@ -42,7 +42,7 @@ ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
                            # For Panel 1, have an input option
                            conditionalPanel(condition = "input.tabselected == 1",
                                             h3("Import Data"),
-                                            fileInput("in_taxon_table", "Please select your table.\n
+                                            fileInput("in_table", "Please select your table.\n
                                                    Note: this should be saved either as *.txt or *.tsv",
                                                       accept = c(".txt", ".tsv")),
                                             h3("Press the button below to varify the Input data!"),
