@@ -25,11 +25,11 @@ install.packages(packages, repo="http://cran.rstudio.org", dependencies=TRUE)
 
 Xuexue Liu: xuexue.liu@univ-tlse3.fr
 
-Centre for Anthropobiology and Genomics of Toulouse (CAGT) (https://cagt.cnrs.fr/)
-
 ## Citation
 
 XL, OL, [mapDATAge: a ShinyR package to chart ancient DNA data through space and time]
+
+Centre for Anthropobiology and Genomics of Toulouse (CAGT) (https://cagt.cnrs.fr/)
 
 ## Acknowledgement
 
