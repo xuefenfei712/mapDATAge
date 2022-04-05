@@ -19,7 +19,7 @@ packages=c("plotly","shiny","shinyFiles","leaflet","shinythemes","RColorBrewer",
 "ggplot2","plotly","markdown","leaflet.minicharts","htmltools","leaflegend","sf","sp","stringi","leaflet.extras",
 "dplyr","rcolors","DT","forcats").
 
-install.packages(packages, repo="http://cran.rstudio.org", dependencies=TRUE)
+install.packages(packages, repos="http://cran.rstudio.org", dependencies=TRUE)
 
 ## Authors
 
