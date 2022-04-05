@@ -23,7 +23,9 @@ install.packages(packages, repo="http://cran.rstudio.org", dependencies=TRUE)
 
 ## Authors
 
-[Xuexue Liu] xuexue.liu@univ-tlse3.fr
+Xuexue Liu： xuexue.liu@univ-tlse3.fr
+
+Centre for Anthropobiology and Genomics of Toulouse (CAGT) (https://cagt.cnrs.fr/)
 
 ## Citation
 
