@@ -10,5 +10,5 @@ The mapDATAge package is designed to explore the presence of geographic and temp
 (7) finally, options are provided to automatically generate figures applying a preselected range of temporal and spatial and temporal parameters, which can be useful to contrast data from different loci and/or species (ONECLICK). 
     mapDATAge is implemented and maintained in ShinyR by Dr Xuexue Liu at the Centre for Anthropobiology and Genomics of Toulouse (CAGT) (https://cagt.cnrs.fr/).
 The underlying code is available at [https://github.com/xuefenfei712/mapDATAge].
-Please cite the following publication [Xuexue Liu and Ludovic Orlando (2022). mapDATAge: a ShinyR package to chart ancient DNA data through space and time. Bioinformatics XX:XX-XX]
+Please cite the following publication [Xuexue Liu and Ludovic Orlando (2022). mapDATAge: a ShinyR package to chart ancient DNA data through space and time. Bioinformatics XX:XX-XX].
 Please contact Dr Xuexue Liu (xuexue.liu@univ-tlse3.fr), if you have any questions, or suggestions for improvement.
