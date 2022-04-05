@@ -1,4 +1,4 @@
-Sample	Coverage	age	Latitude	Longitude	Sex	Site	nameNew	SNP_chr9-73114851_A	SNP_chr9-73114851_D	Ance1	Ance2	Ance3	Ance4	Ance5	Ance6	Species	Age
+Sample	Coverage	Age	Latitude	Longitude	Sex	Site	nameNew	SNP_chr9-73114851_A	SNP_chr9-73114851_D	Ance1	Ance2	Ance3	Ance4	Ance5	Ance6	Species	Age
 18ELTu18_AMIS-1-01102_Spa_m588	1.120820036	-588	38.95	-6.06	male	site1	18ELTu18_Spa_m588	0	4	0	0	1e-06	0.039032	0.025058	0.935909	horse	2538
 AC7970_AMIS-1-00131_Tur_m290	1.163410085	-290	38.41	33.84	male	site2	AC7970_Tur_m290	0	0	0	0.006005	4e-06	0.00942	0.044298	0.940271	horse	2240
 AC8811_AMIS-1-00133_Tur_m2125	4.180880673	-2125	38.41	33.84	female	site2	AC8811_Tur_m2125	0	3	0	0	0.186098	0	0.048309	0.765592	horse	4075
