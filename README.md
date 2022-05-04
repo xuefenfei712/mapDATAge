@@ -12,18 +12,28 @@ The mapDATAge package is designed to explore the presence of geographic and temp
 (7) finally, options are provided to automatically generate figures applying a preselected range of temporal and spatial and temporal parameters, which can be useful to contrast data from different loci and/or species (ONECLICK). 
 
 ## Getting Started
+[Here is a detail instruction for running] (https://github.com/xuefenfei712/mapDATAge)
 
 ### Installing
 
 packages=c("plotly","shiny","shinyFiles","leaflet","shinythemes","RColorBrewer","esquisse","scales",
 "ggplot2","plotly","markdown","leaflet.minicharts","htmltools","leaflegend","sf","sp","stringi","leaflet.extras",
-"dplyr","rcolors","DT","forcats").
+"dplyr","rcolors","DT","forcats")
 
+<<<<<<< HEAD
 install.packages(packages, repo="http://cran.rstudio.org", dependencies=TRUE)
+
+### Runing via a URL
+
+Plese run this command below to lunch mapDATAge
+if(interactive()){
+shiny::runUrl("https://github.com/xuefenfei712/mapDATAge/archive/refs/heads/main.zip")
+}
 
 ## Authors
 
-Xuexue Liu： xuexue.liu@univ-tlse3.fr
+Xuexue Liu: xuexue.liu@univ-tlse3.fr
+>>>>>>> a6204225e4d719d6fdad8bcaef5cf23bbafc4e49
 
 ## Citation
 
