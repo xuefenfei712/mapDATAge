@@ -12,7 +12,7 @@ The mapDATAge package is designed to explore the presence of geographic and temp
 (7) finally, options are provided to automatically generate figures applying a preselected range of temporal and spatial and temporal parameters, which can be useful to contrast data from different loci and/or species (ONECLICK). 
 
 ## Getting Started
-[Here is a detail instruction for running] (https://github.com/xuefenfei712/mapDATAge)
+[Here is a detail instruction for running] (https://github.com/xuefenfei712/mapDATAge/mapDATAgeInstructions.docx)
 
 ### Installing
 
