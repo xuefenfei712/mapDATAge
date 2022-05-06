@@ -13,6 +13,18 @@ validate_input_files <- function(table) {
     stop("Please make sure that all required columns are provided in the uploaded table!")
   }
 }
+labelpop <- function(data,inlist){
+  a="";res=""
+  foreach(i=1:length(inlist)) %do% {
+    #a=ifelse(is.null(data[,inlist[i]]),NA,paste0("<div>",paste(inlist[i],data[,inlist[i]], sep=": "),"<br>"))
+    if(is.null(data[,inlist[i]])){
+      a=NA
+    }else{
+      a=paste0("<div>",paste(inlist[i],data[,inlist[i]], sep=": "),"<br>")
+      res=paste0(res,a)}
+  }
+  res
+}
  ##freq plot
  AllePlot=function(dat,sex,species,gt,windowsize,stepsize,st,end,snp,lat1,lat2,long1,long2,ymin,ymax,sampletime,gtp){
   d=dat[,c("Sample","Age","Latitude","Longitude","Sex","Site","Species",names(dat)[grep(snp,names(dat))])]
@@ -226,6 +238,7 @@ Merge=function(data){
   charvec=c("Site","Sample","Species","Sex")
   d2 <- sf::st_as_sf(d, coords = c("Longitude", "Latitude"))
   d3 <- sf::st_intersection(d2)
+  #d2[,charvec]=""
   list <- parallel::mclapply(1:length(d3$origins), function(x) {
     point <- d3[x, ]
     point[,charvec]=foreach(i=1:length(charvec), .combine=cbind) %dopar% {

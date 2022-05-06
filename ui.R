@@ -11,7 +11,8 @@ library(foreach)
 source("code/Functional.R")
 #library(parallel)
 library(doParallel)
-#registerDoParallel(cores=4)
+#registerDoParallel(cores=detectCores())
+#library(doRNG)
 #library(doMC)
 #registerDoMC(cores = detectCores())
 
@@ -41,7 +42,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                            conditionalPanel(condition = "input.tabselected == 2",
                                               esquisse::palettePicker(
                                               inputId = "colors", 
-                                              label = "Select your colors:", 
+                                              label = "Select colors:", 
                                               choices = list(
                                                 "BrBG" = brewer_pal(palette = "BrBG")(11),
                                                 "PiYG" = brewer_pal(palette = "PiYG")(11),
@@ -70,7 +71,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                            conditionalPanel(condition = "input.tabselected == 3 ", 
                                             esquisse::palettePicker(
                                               inputId = "colors1", 
-                                              label = "Select your colors:", 
+                                              label = "Select colors:", 
                                               choices = list(
                                                 "BrBG" = brewer_pal(palette = "BrBG")(11),
                                                 "PiYG" = brewer_pal(palette = "PiYG")(11),
@@ -109,7 +110,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                            conditionalPanel(condition = "input.tabselected == 5 ",
                                             esquisse::palettePicker(
                                               inputId = "colors2", 
-                                              label = "Select your colors:", 
+                                              label = "Select colors:", 
                                               choices = list(
                                                 "BrBG" = brewer_pal(palette = "BrBG")(11),
                                                 "PiYG" = brewer_pal(palette = "PiYG")(11),
@@ -149,7 +150,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                            conditionalPanel(condition = "input.tabselected == 7",
                                             esquisse::palettePicker(
                                               inputId = "colors3", 
-                                              label = "Select your colors:", 
+                                              label = "Select colors:", 
                                               choices = list(
                                                 "BrBG" = brewer_pal(palette = "BrBG")(11),
                                                 "PiYG" = brewer_pal(palette = "PiYG")(11),

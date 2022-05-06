@@ -1,11 +1,11 @@
-setwd("C:\\MapR\\RevisionmapDATAge")
+#setwd("C:\\MapR\\RevisionmapDATAge\\data")
 library(foreach)
 pedfile="SNPrs4988235.ped"
 ped=read.table(pedfile,header=F,sep="\t",stringsAsFactors = F)
 infofile="human-EU-info.txt"
 info=read.table(infofile,header=T,sep="\t",stringsAsFactors = F)
-snp=unique(ped[,7])
-names=c(paste0("SNP_rs4988253_",snp))
+snp=unique(ped[,7])[2:3]
+names=c(paste0("SNP_rs4988253_",snp))[2:3]
 
 oname=c("Site","Age" ,"Latitude","Longitude","Sex", "CAT_mtDNA","CAT_Y")
 for(i in 1:nrow(ped)){
@@ -20,3 +20,5 @@ result=cbind(ped[,c(1,2,3)],ped[,oname])
 colnames(result)=c("Sample",names,oname)
 result$Species="human"
 write.table(result,"mapDATAge_rs4988235.txt",col.names=T,row.names = F,sep="\t",quote=F)
+
+yong=read.table("mapDATAge-rs4988235_MCM6.txt",header=T,sep="\t",stringsAsFactors = F)
