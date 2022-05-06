@@ -586,7 +586,7 @@ server <- function(input, output,session)({
     if(length(select(table(),starts_with("Snp_")))>0){
       req(filtData3())
       leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 1, maxZoom = 5, dragging = T)) %>%
-        addTiles() %>%#addControl(titletraj, position = "topleft") %>%
+        addTiles(tilesURL) %>%#addControl(titletraj, position = "topleft") %>%
         fitBounds(min(table()$Longitude)-0.3,min(table()$Latitude)-0.3,max(table()$Longitude)+0.3,max(table()$Latitude)+0.3) %>%
         addCircleMarkers(filtData3()$Longitude, filtData3()$Latitude,radius=filtData3()[,paste("Snp_",input$allsnp,"_",tolower(input$allall),sep="")]) %>% addResetMapButton()%>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "topright")
     }  
