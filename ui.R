@@ -20,8 +20,6 @@ library(rcolors)
 library(forcats)
 library(foreach)
 
-source("code/validate_input.R")
-source("code/drawPCA.R")
 source("code/Mergeawsome.R")
 ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
                          # headerPanel("aDNA Data exploration"),
