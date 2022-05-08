@@ -677,8 +677,13 @@ server <- function(input, output,session)({
       req(filteredData3())
       leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 1, maxZoom = 5, dragging = T)) %>%
         addTiles(tilesURL) %>%#addControl(titletraj, position = "topleft") %>%
+<<<<<<< HEAD
         fitBounds(min(taxonomy_table()$LONGITUDE)-0.3,min(taxonomy_table()$LATITUDE)-0.3,max(taxonomy_table()$LONGITUDE)+0.3,max(taxonomy_table()$LATITUDE)+0.3) %>%
         addCircleMarkers(filteredData3()$LONGITUDE, filteredData3()$LATITUDE,radius=filteredData3()[,paste("SNP_",input$allsnp,"_",input$allall,sep="")]) %>% addResetMapButton()%>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "topright")
+=======
+        fitBounds(min(table()$Longitude)-0.3,min(table()$Latitude)-0.3,max(table()$Longitude)+0.3,max(table()$Latitude)+0.3) %>%
+        addCircleMarkers(filtData3()$Longitude, filtData3()$Latitude,radius=filtData3()[,paste("Snp_",input$allsnp,"_",tolower(input$allall),sep="")]) %>% addResetMapButton()%>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "topright")
+>>>>>>> d1ce05f1fa20617c9e2e18d8a0c7ccb8f5b54e54
     }  
   })
   observe({ 

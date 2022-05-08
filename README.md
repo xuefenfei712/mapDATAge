@@ -18,9 +18,8 @@ Here is a detail instruction for running (https://github.com/xuefenfei712/mapDAT
 
 packages=c("plotly","shiny","shinyFiles","leaflet","shinythemes","RColorBrewer","esquisse","scales",
 "ggplot2","plotly","markdown","leaflet.minicharts","htmltools","leaflegend","sf","sp","stringi","leaflet.extras",
-"dplyr","rcolors","DT","forcats")
+"dplyr","rcolors","DT","forcats","foreach")
 
-<<<<<<< HEAD
 install.packages(packages, repo="http://cran.rstudio.org", dependencies=TRUE)
 
 ### Runing via a URL
