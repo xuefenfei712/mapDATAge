@@ -599,7 +599,7 @@ I0449	HAdmezèvA≠	6700	46.35587	20.27821	male	U	I
 I0453	MurciaCara	4239	38.1	-1.85	male	V	I
 I0455	MurciaCara	4737	38.1	-1.85	male	H	I
 I0456	MurciaCara	4500	38.1	-1.85	female	U	unknown
-I0457	MurciaCara	4500	38.1	-1.85	male	J	IJ
+I0457	MurciaCara	4500	38.1	-1.85	male	J	I
 I0458	BurgosArro	4270	42.4	-3.75	male	K	I
 I0459	BurgosArro	4350	42.4	-3.75	female	U	unknown
 I0460	BurgosArro	4287	42.4	-3.75	male	H	I
@@ -633,12 +633,12 @@ I0789.SG	EnglandCam	2163	52.0991	0.277	female	H	unknown
 I0795	Karsdorf	7071	51.28305556	11.65	male	H	T
 I0797	Karsdorf	7125	51.28305556	11.65	male	H	T
 I0800	SalzmAndeS	5164	51.53305556	11.83305556	female	H	unknown
-I0802	SalzmAndeS	5163	51.53305556	11.83305556	male	H	IJ
+I0802	SalzmAndeS	5163	51.53305556	11.83305556	male	H	I
 I0803	Eulau	3977	51.167663	11.847527	female	H	unknown
-I0804	Eulau	4010	51.167663	11.847527	male	H	IJ
+I0804	Eulau	4010	51.167663	11.847527	male	H	I
 I0805	Quedlinbur	4252	51.79	11.14	male	H	R
 I0806	Quedlinbur	4217	51.79	11.14	male	H	R
-I0807	Esperstedt	5799	51.42	11.68	male	H	IJ
+I0807	Esperstedt	5799	51.42	11.68	male	H	I
 I0821_published	Halberstad	6938	51.89583333	11.04666667	male	X	G
 I0823	BarcelonaC	4500	41.49194444	2.138888889	female	H	unknown
 I0825	BarcelonaC	4346	41.49194444	2.138888889	male	K	G
@@ -937,7 +937,7 @@ I2014	Halberstad	6946	51.89583333	11.04666667	male	N	G
 I2016_published	Halberstad	7125	51.89583333	11.04666667	female	V	unknown
 I2017_published	Halberstad	7125	51.89583333	11.04666667	female	K	unknown
 I2020	Halberstad	7125	51.89583333	11.04666667	male	K	G
-I2021_published	Halberstad	7125	51.89583333	11.04666667	male	T	CT
+I2021_published	Halberstad	7125	51.89583333	11.04666667	male	T	C
 I2022	Halberstad	7125	51.89583333	11.04666667	female	T	unknown
 I2026_published	Halberstad	7125	51.89583333	11.04666667	male	N	G
 I2029_published	Halberstad	7100	51.89583333	11.04666667	female	K	unknown
@@ -1094,7 +1094,7 @@ I2651	ScotlandOr	5160	59.35	-2.873	female	K	unknown
 I2653	ScotlandLo	3224	55.98	-2.896	male	H	R
 I2654	ScotlandLo	3287	55.98	-2.896	female	U	unknown
 I2655	ScotlandPa	3311	58.23	-6.935	male	H	I
-I2656_published_d	ScotlandLo	3081	55.97	-2.896	male	unknown	CT
+I2656_published_d	ScotlandLo	3081	55.97	-2.896	male	unknown	C
 I2657	ScotlandAr	5814	56.42	-5.472	male	W	I
 I2659	ScotlandDi	5637	56.41	-5.471	female	H	unknown
 I2660	ScotlandDi	5394	56.41	-5.471	male	U	I
@@ -1470,8 +1470,8 @@ I5367	ScotlandCo	4312	56.680948	-6.45982	female	V	unknown
 I5370	ScotlandOb	5600	56.414567	-5.469178	female	K	unknown
 I5371	ScotlandOb	5600	56.414567	-5.469178	female	H	unknown
 I5373	EnglandDer	4034	53.079803	-1.640942	male	X	R
-I5374	EnglandSom	4480	51.279	-2.743324	male	H	CT
-I5374.SG	EnglandSom	4480	51.279	-2.743324	male	H	CT
+I5374	EnglandSom	4480	51.279	-2.743324	male	H	C
+I5374.SG	EnglandSom	4480	51.279	-2.743324	male	H	C
 I5374_contam.SG	EnglandSom	4480	51.279	-2.743324	male	H	unknown
 I5376	EnglandLon	4216	51.474176	-0.309898	female	H	unknown
 I5377	EnglandLon	3758	51.471197	-0.266408	male	T	R
@@ -1554,7 +1554,7 @@ I5886_published	DereivkaI	7212	48.91422	33.76493	male	U	I
 I5888_published	DereivkaI	6950	48.91422	33.76493	male	U	I
 I5889_published	DereivkaI	6988	48.91422	33.76493	female	U	unknown
 I5890	DereivkaI	7092	48.91422	33.76493	male	U	R
-I5891_published	DereivkaI	7297	48.91422	33.76493	male	U	CT
+I5891_published	DereivkaI	7297	48.91422	33.76493	male	U	C
 I5892	DereivkaI	7069	48.91422	33.76493	male	U	P
 I5893_published	DereivkaI	7249	48.91422	33.76493	male	U	R
 I5957_published	Volniensky	7287	47.9543	35.3893	male	T	I
@@ -1567,7 +1567,7 @@ I6466	LisbonVerd	4450	38.875	-9.075	male	K	unknown
 I6467	LisbonVerd	4450	38.875	-9.075	female	K	unknown
 I6468	VelkAPèAle	4150	50.166667	14.316667	female	K	unknown
 I6470	CastillayL	3609	42.725112	3.84239	male	J	R
-I6471_published	LaMagdalen	4200	40.49033	-3.373888	male	U	CT
+I6471_published	LaMagdalen	4200	40.49033	-3.373888	male	U	C
 I6472	LaMagdalen	4200	40.49033	-3.373888	male	H	R
 I6475	LaMagdalen	4200	40.49033	-3.373888	female	U	unknown
 I6476	Lovosice	4100	50.509507	14.04452	female	U	unknown
@@ -1575,7 +1575,7 @@ I6480	VelkAPèAle	4150	50.166667	14.316667	male	U	R
 I6481	Weichering	4250	48.705913	11.325375	male	U	unknown
 I6482	Weichering	4250	48.705913	11.325375	female	U	unknown
 I6490	TarragonaM	1600	41.274	1.178	female	K	unknown
-I6491_published	TarragonaM	1600	41.274	1.178	male	H	CT
+I6491_published	TarragonaM	1600	41.274	1.178	male	H	C
 I6492	TarragonaM	1600	41.274	1.178	male	T	unknown
 I6531	GminaCisek	4113	50.23	18.22	male	U	R
 I6534	Kornice	4237	50.09	18.1	male	T	R
@@ -1616,7 +1616,7 @@ I6626_published	MadridSanF	4100	40.439	-3.501	female	H	unknown
 I6628	MadridHuma	4550	40.22	-3.76	female	H	unknown
 I6629	MadridHuma	4550	40.22	-3.76	male	T	F
 I6630	MadridHuma	4550	40.22	-3.76	female	J	unknown
-I6677	Bilina	5550	50.548056	13.776111	male	T	HIJK
+I6677	Bilina	5550	50.548056	13.776111	male	T	H
 I6679	EnglandNor	3936	55.309983	-1.553328	male	J	R
 I6680	EnglandNor	3671	55.309983	-1.553328	male	H	R
 I6695	Bilina	4575	50.548056	13.776111	female	H	unknown
@@ -1750,7 +1750,7 @@ I7577	EnglandBed	3198	52.122402	-0.511365	male	U	R
 I7578	EnglandBed	3080	52.122402	-0.511365	female	U	unknown
 I7579	EnglandBed	3349	52.122402	-0.511365	female	U	unknown
 I7580	EnglandBed	3087	52.122402	-0.511365	female	U	unknown
-I7587	AndalusiaC	4650	37.24	-4.24	male	T	GHIJK
+I7587	AndalusiaC	4650	37.24	-4.24	male	T	H
 I7588	AndalusiaC	4650	37.24	-4.24	U	J	unknown
 I7594	AlicanteAl	5396	38.7025	-0.48631	female	U	unknown
 I7595_published	AlicanteAl	5396	38.7025	-0.48631	female	U	unknown
@@ -1796,7 +1796,7 @@ I7807	SicilyCont	4038	36.8831	14.5712	female	T	unknown
 I7949	Bilina	3022	50.548056	13.776111	male	U	R
 I8045	SetAßbalMe	3450	38.1988	-8.71	female	U	unknown
 I8048	GranadaAre	4050	37.005	-3.8947	male	U	I
-I8130	ValencianC	7957	39.79	-1.033333	male	U	CT
+I8130	ValencianC	7957	39.79	-1.033333	male	U	C
 I8131	ValencianC	4459	38.9777	-0.16037	female	J	unknown
 I8132	ValencianC	4450	38.9777	-0.16037	female	H	unknown
 I8134	CA≠dizSanF	6100	36.445	-6.21	female	U	unknown
@@ -1870,7 +1870,7 @@ Iceman.SG	TrentinoSo	5199	46.77	10.83	male	K	G
 ILK001	Ilatka	4773	49.55777778	27.68861111	male	unknown	I
 ILK002	Ilatka	4734	49.55777778	27.68861111	male	unknown	I
 ILK003	Ilatka	4781	49.55777778	27.68861111	female	unknown	unknown
-IR1.SG	LudasVarju	2849	47.82	19.95	male	G	NO
+IR1.SG	LudasVarju	2849	47.82	19.95	male	G	N
 Ire8.SG	GotlandSto	4575	57.833	18.6	male	U	I
 ISB001	SardiniaSe	3735	39.87	9.2356	male	H	I
 ISC001	SardiniaUs	4175	40.663405	8.538646	male	T	I
@@ -2074,7 +2074,7 @@ MIB078	BohemiaMik	3993	49.992004	15.776861	female	unknown	unknown
 MIB079	BohemiaMik	3871	49.992004	15.776861	female	H	unknown
 MIB082	BohemiaMik	3770	49.992004	15.776861	female	I	unknown
 MIB083	BohemiaMik	4176	49.992004	15.776861	male	H	R
-MIB084	BohemiaMik	4031	49.992004	15.776861	male	rCRS	R
+MIB084	BohemiaMik	4031	49.992004	15.776861	male	R	R
 MIB086	BohemiaMik	3906	49.992004	15.776861	male	K	R
 MIB087	BohemiaMik	3749	49.992004	15.776861	male	J	R
 mid001.SG	ScotlandOr	5173	59.157625	-3.10046	male	K	I
@@ -2244,7 +2244,7 @@ OBKR_6	KAnigsbrun	3921	48.26656	10.87857	female	V	unknown
 OBKR_66	KAnigsbrun	3918	48.26656	10.87857	female	U	unknown
 OBKR_66_d	KAnigsbrun	3918	48.26656	10.87857	female	U	unknown
 OBKR_67	KAnigsbrun	3906	48.26656	10.87857	male	K	R
-OBKR_67_d	KAnigsbrun	3906	48.26656	10.87857	male	K	CF
+OBKR_67_d	KAnigsbrun	3906	48.26656	10.87857	male	K	C
 OBKR_73	KAnigsbrun	3911	48.26656	10.87857	female	U	unknown
 OBKR_73_d	KAnigsbrun	3911	48.26656	10.87857	female	U	unknown
 OBKR_76	KAnigsbrun	3863	48.26656	10.87857	female	K	unknown
@@ -2380,7 +2380,7 @@ POST_12	Haunstette	4036	48.29573	10.89103	female	J	unknown
 POST_12_d	Haunstette	4036	48.29573	10.89103	female	J	unknown
 POST_131	Haunstette	3950	48.29573	10.89103	female	T	unknown
 POST_131_d	Haunstette	3950	48.29573	10.89103	female	T	unknown
-POST_140_d	Haunstette	3944	48.29573	10.89103	male	H	BT
+POST_140_d	Haunstette	3944	48.29573	10.89103	male	H	B
 POST_16	Haunstette	3922	48.29573	10.89103	female	T	unknown
 POST_2	Haunstette	3971	48.29573	10.89103	female	unknown	unknown
 POST_28	Haunstette	3917	48.29573	10.89103	male	K	R
@@ -2776,11 +2776,11 @@ SB603A_lib.SG	EnglandSus	5516	50.860903	-0.399007	female	X	unknown
 SBj.SG	StoraBjers	8771	57.792	18.538	male	U	I
 SBT-A-1_38.SG	Smyrlaberg	1015	65.6	-20.166667	male	H	I
 SCH001	BadenWArtt	7050	49.39	8.57	female	H	unknown
-SCH004	BadenWArtt	7050	49.39	8.57	male	N	CT
+SCH004	BadenWArtt	7050	49.39	8.57	male	N	C
 SCH007	BadenWArtt	7050	49.39	8.57	female	T	unknown
 SCH009	BadenWArtt	7050	49.39	8.57	female	H	unknown
 SCH010	BadenWArtt	7050	49.39	8.57	female	H	unknown
-SCH011	BadenWArtt	7050	49.39	8.57	male	H	CT
+SCH011	BadenWArtt	7050	49.39	8.57	male	H	C
 SCH014	BadenWArtt	7050	49.39	8.57	female	T	unknown
 SCH015	BadenWArtt	7050	49.39	8.57	female	H	unknown
 SCH016	BadenWArtt	7091	49.39	8.57	male	H	C
@@ -2907,11 +2907,11 @@ SZ9	SzAlA≠d	1442	46.28333333	17.85	female	J	unknown
 Tamula1	Tamula	5407	57.505	26.584	female	U	unknown
 Tamula3	Tamula	5666	57.505	26.584	male	U	R
 TGM008	SaxonyAnha	5107	52.54	11.97	male	unknown	I
-TGM009	SaxonyAnha	5208	52.54	11.97	male	JT	I
+TGM009	SaxonyAnha	5208	52.54	11.97	male	J	I
 TGS-A-1_38.SG	TungaIGAng	854	65.733333	-19.633333	male	T	R
 TIM001.SG	IvanovoTim	4300	57.13447391	39.97571368	male	K	R
 TIM002.SG	IvanovoTim	4300	57.13447391	39.97571368	U	N	unknown
-TIM003.SG	IvanovoTim	4300	57.13447391	39.97571368	male	unknown	NA
+TIM003.SG	IvanovoTim	4300	57.13447391	39.97571368	male	unknown	unknown
 TIM005.SG	IvanovoTim	4300	57.13447391	39.97571368	female	T	unknown
 TIM006.SG	IvanovoTim	4502	57.13447391	39.97571368	female	W	unknown
 TIM008.SG	IvanovoTim	4502	57.13447391	39.97571368	male	K	R
@@ -3006,7 +3006,7 @@ Veibri4	Veibri	6760	58.201689	26.465	female	U	unknown
 VEK006	Caspiansea	4850	42.179802	48.066089	female	U	unknown
 VEK007	Caspiansea	4850	42.179802	48.066089	male	U	J
 VEK009	Caspiansea	4850	42.179802	48.066089	male	U	J
-vik_2072.SG	Sigtunacem	973	59.61731	17.72361	male	U	BT
+vik_2072.SG	Sigtunacem	973	59.61731	17.72361	male	U	B
 vik_84001.SG	Sigtunacem	964	59.61731	17.72361	male	H	N
 vik_84005.SG	Sigtunacem	900	59.61731	17.72361	male	H	I
 vik_84035.SG	Sigtunacem	1061	59.61731	17.72361	female	H	unknown
@@ -3233,7 +3233,7 @@ VK354.SG	Oland	939	56.444068	16.5658256	male	H	R
 VK355.SG	Oland	1097	56.2847285	16.409356	male	U	L
 VK357.SG	Oland	887	56.41526	16.4326046	male	J	I
 VK358.SG	Oland	1092	56.8057977	16.7301606	female	U	unknown
-VK359.SG	Oland	1200	57.3501182	17.0758422	male	H	BT
+VK359.SG	Oland	1200	57.3501182	17.0758422	male	H	B
 VK361.SG	LangelandB	1000	54.87	10.72	female	X	unknown
 VK362.SG	LangelandB	1000	54.87	10.72	male	V	E
 VK363.SG	LangelandB	1000	54.87	10.72	male	U	I
@@ -3510,7 +3510,7 @@ WEZ24.SG	Mecklenbur	3200	53.74	13.31	male	H	I
 WEZ35.SG	Mecklenbur	3200	53.74	13.31	male	K	R
 WEZ39.SG	Mecklenbur	3200	53.74	13.31	male	J	I
 WEZ40.SG	Mecklenbur	3200	53.74	13.31	male	T	R
-WEZ48.SG	Mecklenbur	3200	53.74	13.31	male	J	CT
+WEZ48.SG	Mecklenbur	3200	53.74	13.31	male	J	B
 WEZ51.SG	Mecklenbur	3200	53.74	13.31	male	H	I
 WEZ53.SG	Mecklenbur	3200	53.74	13.31	male	U	R
 WEZ54.SG	Mecklenbur	3200	53.74	13.31	male	V	R

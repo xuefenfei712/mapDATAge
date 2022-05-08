@@ -1,22 +1,29 @@
-library(shiny)
+library(DT)
 library(plotly)
+library(shiny)
+library(shinyFiles)
 library(leaflet)
+library(shinythemes)
 library(RColorBrewer)
-library(scales)##color
-library(leaflegend)
+library(esquisse)
+library(scales)
+library(markdown)
 library(leaflet.minicharts)
+library(htmltools)
+library(leaflegend)
+library(sf)
+library(sp)
+library(stringi)
 library(leaflet.extras)
-#library(shinyParallel)
+library(dplyr)
+library(rcolors)
+library(forcats)
 library(foreach)
-source("code/Functional.R")
-#library(parallel)
-library(doParallel)
-#registerDoParallel(cores=detectCores())
-#library(doRNG)
-#library(doMC)
-#registerDoMC(cores = detectCores())
 
-ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
+source("code/validate_input.R")
+source("code/drawPCA.R")
+source("code/Mergeawsome.R")
+ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
                          # headerPanel("aDNA Data exploration"),
                          titlePanel(
                            title=div(
@@ -26,23 +33,22 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                            ), windowTitle = "Welcome to mapDATAge!"
                          ),
                          sidebarPanel(     
-                           ## conditionalPanel() functions for selected tab
                            conditionalPanel(condition = "input.tabselected == -999"),#img(src="cagt.jpg",height="10%",width="10%")),
-                           # For Panel 1,welcome
+                           # For Panel 1, have an input option
                            conditionalPanel(condition = "input.tabselected == 1",
                                             h3("Import Data"),
-                                            fileInput("in_taxon_table", "Please select your table.\n
+                                            fileInput("in_table", "Please select your table.\n
                                                    Note: this should be saved either as *.txt or *.tsv",
                                                       accept = c(".txt", ".tsv")),
                                             h3("Press the button below to verify the Input data!"),
                                             actionButton("go", "Run mapDATAge!"),
                                             textOutput("fileStatus")
                            ),
-                           # On panel 2 (map),
+                           # On panel 2 (map)
                            conditionalPanel(condition = "input.tabselected == 2",
-                                              esquisse::palettePicker(
+                                              palettePicker(
                                               inputId = "colors", 
-                                              label = "Select colors:", 
+                                              label = "Select your colors:", 
                                               choices = list(
                                                 "BrBG" = brewer_pal(palette = "BrBG")(11),
                                                 "PiYG" = brewer_pal(palette = "PiYG")(11),
@@ -67,11 +73,11 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                               column(6,uiOutput("mapoutsx")),column(6,uiOutput("mapoutsp"))),uiOutput("mapout"),
                                             uiOutput("mapoutlat"),uiOutput("mapoutlog"),uiOutput("mapoutlab")
                            ),
-                           # On panel 3 (pie), 
+                           # On panel 3 (pie)
                            conditionalPanel(condition = "input.tabselected == 3 ", 
-                                            esquisse::palettePicker(
+                                            palettePicker(
                                               inputId = "colors1", 
-                                              label = "Select colors:", 
+                                              label = "Select your colors:", 
                                               choices = list(
                                                 "BrBG" = brewer_pal(palette = "BrBG")(11),
                                                 "PiYG" = brewer_pal(palette = "PiYG")(11),
@@ -87,30 +93,34 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                               textColor = "white"),uiOutput("pieoutsnp"),
                                             fluidRow(
                                               column(6,style='color:red; font-weight: bold',selectInput("pietype", "Select Allele type", choices = c(Choose='',"ReadCounts","Genotype"), multiple = FALSE,selectize=FALSE)),
-                                              column(6,selectInput("type", "Chart type", choices = c("bar","pie","polar-area", "polar-radius"),selected="pie"))),
-                                            fluidRow(column(6,uiOutput("pieoutsx")),column(6,uiOutput("pieoutsp"))),uiOutput("pieout"),
+                                              column(6,selectInput("type", "Chart type", choices = c("bar","pie","polar-area", "polar-radius"),selected="pie")),
+                                              #column(1,checkboxInput("labels", "Show values"))
+                                              ),
+                                            fluidRow(
+                                              column(6,uiOutput("pieoutsx")),column(6,uiOutput("pieoutsp"))),uiOutput("pieout"),
                                             uiOutput("pieoutlat"),uiOutput("pieoutlog"),uiOutput("pieoutlab"),
-                                            numericInput("GridSize","Time interval (years)",2000,min=100,max=10000),
+                                            numericInput("GridSize","Time interval (years)",1000,min=100,max=10000),
                                             textInput("root", "Please enter your project root:"),
                                             shinyFiles::shinyDirButton(id = 'sheets_dir', label = "Path to your output folder", title = "Sheets Folder Select"),
                                             verbatimTextOutput("sheets_dir"),
                                             actionButton("Down","Draw temporal maps"),
                                             numericInput("Gridpie","Grid Size for geographic binning",0,min=0,max=10)
                            ),
-                           # On panel 4 (allefreq),
+                           # On panel 4 (allefreq)
                            conditionalPanel(condition = "input.tabselected == 4 ",
                                             fluidRow(column(8,uiOutput("allsnp")),column(4,uiOutput("allall"))),
-                                            fluidRow(column(6,uiOutput("alloutsx")),column(6,uiOutput("alloutsp"))),
-                                            fluidRow(column(6,numericInput("WinSize","Window Size",2000,min=100,max=10000)), column(6,numericInput("StepSize","Step Size",1000,min=100,max=10000))),
+                                            fluidRow(
+                                              column(6,uiOutput("alloutsx")),column(6,uiOutput("alloutsp"))),
+                                            fluidRow(column(6,numericInput("WinSize","Window Size",1000,min=100,max=10000)), column(6,numericInput("StepSize","Step Size",500,min=100,max=10000))),
                                             uiOutput("allout"),
                                             uiOutput("alloutlat"),uiOutput("alloutlog"),
 											                      fluidRow(column(6,style='color:red; font-weight: bold',selectInput("alltype", "Select Allele type", choices = c(Choose='',"ReadCounts","Genotype"), multiple = FALSE,selectize=FALSE)),column(6,uiOutput("allsampling"))),
                                             fluidRow(column(6,uiOutput("alloutymin")),column(6,uiOutput("alloutymax")))),
-                           ### On panel 5 (ancestral component),
+                           ### On panel 5 (ancestral component)
                            conditionalPanel(condition = "input.tabselected == 5 ",
-                                            esquisse::palettePicker(
+                                            palettePicker(
                                               inputId = "colors2", 
-                                              label = "Select colors:", 
+                                              label = "Select your colors:", 
                                               choices = list(
                                                 "BrBG" = brewer_pal(palette = "BrBG")(11),
                                                 "PiYG" = brewer_pal(palette = "PiYG")(11),
@@ -121,21 +131,23 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                                 "RdYlBu" = brewer_pal(palette = "RdYlBu")(11),
                                                 "RdYlGn" = brewer_pal(palette = "RdYlGn")(11),
                                                 "Spectral" = brewer_pal(palette = "Spectral")(11)),
-                                              selected="RdYlGn",plainColor = TRUE,textColor = "white"),
+                                              selected="RdYlGn",
+                                              plainColor = TRUE, 
+                                              textColor = "white"),
                                             fluidRow(
                                               column(6,selectInput("type1", "Chart type", choices = c("bar","pie", "polar-area", "polar-radius"),selected="pie")),
                                               column(6,checkboxInput("labels1", "Show proportions"))),
                                             fluidRow(
                                               column(6,uiOutput("ancesoutsx")),column(6,uiOutput("ancesoutsp"))),uiOutput("ancesout"),uiOutput("ancesout1"),
                                             uiOutput("ancesoutcut"),uiOutput("ancesoutlab"),
-                                            numericInput("GridSizea","Time interval (years)",2000,min=100,max=10000),
+                                            numericInput("GridSizea","Time interval (years)",1000,min=100,max=10000),
 											textInput("rootA", "Please enter your project root:"),
                                             shinyFiles::shinyDirButton(id = 'sheets_dirA', label = "Path to your output folder", title = "Sheets Folder Select"),
                                             verbatimTextOutput("sheets_dirA"),
                                             actionButton("Downa","Draw temporal maps"),
                                             numericInput("Gridanc","Grid Size for geographic binning",0,min=0,max=10)
                            ),
-                           # On panel 6 (pca),
+                           # On panel 6 (pca)
                            conditionalPanel(condition = "input.tabselected == 6",
                                             h3("Import eigenval file"),
                                             fileInput("in_pca_table", "Upload the proportion of variance explained by each axis (evalout-like file).\n
@@ -145,12 +157,13 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                               column(6,uiOutput("pcaoutsx")),column(6,uiOutput("pcaoutsp"))),uiOutput("pcaout"),
                                             fluidRow(
                                               column(6,uiOutput("pcaout1")),column(6,uiOutput("pcaout2"))),
-                                            uiOutput("pcaoutlog"),uiOutput("pcaoutlat")),
-                           # On panel 7 (snp),
+                                            uiOutput("pcaoutlog"),uiOutput("pcaoutlat")
+                           ),
+                           # On panel 7 (snp)
                            conditionalPanel(condition = "input.tabselected == 7",
-                                            esquisse::palettePicker(
+                                            palettePicker(
                                               inputId = "colors3", 
-                                              label = "Select colors:", 
+                                              label = "Select your colors:", 
                                               choices = list(
                                                 "BrBG" = brewer_pal(palette = "BrBG")(11),
                                                 "PiYG" = brewer_pal(palette = "PiYG")(11),
@@ -174,7 +187,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                             uiOutput("snpoutlat"),uiOutput("snpoutlog"),uiOutput("snpoutlab")#,
                                             #numericInput("GridSize2","Time interval (years)",1000,min=100,max=10000),
                            ),
-                           # On panel 8 (haplo),
+                           # On panel 8 (haplo)
                            conditionalPanel(condition = "input.tabselected == 8 ", 
                                             fluidRow(
                                               column(6,uiOutput("hapoutty")),
@@ -185,7 +198,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                             uiOutput("hapouthap"),uiOutput("hapoutlab"),
                                             numericInput("Gridhap","Grid Size for geographic binning",0,min=0,max=10)
                            ),
-                           ####on panel 9 autom download
+                           ####on panel 9 
                            conditionalPanel(condition = "input.tabselected == 9 ",
                                             h3("Import parameter file"),
                                             fileInput("in_para_table", "Please select your parameter file. Note: this should be saved either as *.txt or *.tsv",
@@ -195,6 +208,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                             verbatimTextOutput("sheets_dir1"),
                                             actionButton("Draw", "Generate Plots")
                            )),
+                         
                          mainPanel(
                            tags$head(
                              tags$style(HTML("
@@ -218,7 +232,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                       includeMarkdown("md/drawmap.md"),
                                       textOutput("maphead"),
                                     leafletOutput("drawmap"),
-                                    plotly::plotlyOutput("drawmapCount")
+                                      plotlyOutput("drawmapCount")
                                       ,tags$head(tags$style("#maphead{color: black;
                                  font-size: 25px;
                                  font-style: bold;
@@ -229,7 +243,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                       textOutput("errpie"),
                                       textOutput("piehead"),
                                       leafletOutput("pie"),
-                                      plotly::plotlyOutput("pieCount"),
+                                      plotlyOutput("pieCount"),
                                       tags$head(tags$style("#piehead{color: black;
                                  font-size: 25px;
                                  font-style: bold;
@@ -241,7 +255,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                       textOutput("errtraj"),
                                       textOutput("trajhead"),
                                       leafletOutput("deallele"),
-                                      plotly::plotlyOutput("alle"),
+                                      plotlyOutput("alle"),
                                       tags$head(tags$style("#trajhead{color: black;
                                  font-size: 25px;
                                  font-style: bold;
@@ -254,7 +268,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                       textOutput("anchead"),
                                       textOutput("upanc"),
                                       leafletOutput("drawance"),textOutput("downanc"),leafletOutput("drawance2"),
-                                      plotly::plotlyOutput("drawanceCount"),
+                                      plotlyOutput("drawanceCount"),
                                       tags$head(tags$style("#upanc{color: black;
                                  font-size: 15px;
                                  #font-style: plain;
@@ -272,7 +286,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                              tabPanel("pca", value = 6,
                                       textOutput("errpca"),
                                       includeMarkdown("md/pca.md"),
-                                      plotly::plotlyOutput("pca"),
+                                      plotlyOutput("pca"),
                                       textOutput("pcahead"),
                                       leafletOutput("pcamap"),
                                       tags$head(tags$style("#pcahead{color: black;
@@ -286,7 +300,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                       includeMarkdown("md/allsnp.md"),
                                       textOutput("mulhead"),
                                       leafletOutput("snpmap"),
-                                      plotly::plotlyOutput("snpCount"),
+                                      plotlyOutput("snpCount"),
                                       tags$head(tags$style("#mulhead{color: black;
                                  font-size: 23px;
                                  font-style: bold;
@@ -298,7 +312,7 @@ ui=shinyUI(bootstrapPage(theme = shinythemes::shinytheme("sandstone"),
                                       includeMarkdown("md/hap.md"),
                                       textOutput("haphead"),
                                       leafletOutput("hapmap"),
-                                      plotly::plotlyOutput("hapCount"),
+                                      plotlyOutput("hapCount"),
                                       tags$head(tags$style("#haphead{color: black;
                                  font-size: 23px;
                                  font-style: bold;
