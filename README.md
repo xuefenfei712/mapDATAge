@@ -39,7 +39,7 @@ If you want to use it locally, please download the source code of mapDATAge from
 
 Then you can start mapDATAge app by running the command line below:
 
-`path="C:\\MapR\\mapDATAge-main`
+`path="C:\\MapR\\mapDATAge-main"`
 
 
 `shiny::runApp(appDir = path)`
