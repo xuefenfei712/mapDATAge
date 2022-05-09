@@ -28,16 +28,17 @@ Plese run this command below to lunch mapDATAge
 
 `if(interactive()){
 shiny::runUrl("https://github.com/xuefenfei712/mapDATAge/archive/refs/heads/main.zip")
-}'
+}`
 
 `shiny::runGitHub("mapDATAge","xuefenfei712", ref="main")`
 
 These two command will download the code of mapDATAge from Github to a temporary direction of your computer and then launch the mapDATAge in the web browser. Once the web brower was closed, the downloaded code would be deleted from your computer.
 
 If you want to use it locally, please download the source code of mapDATAge from Github to a fixed directory of your computer, such as 'C/MapR' on windows. Following the procedure illustrated in the following figure, a zip file named 'mapDATAge-master.zip' would be downloaded to the disk of your computer. Move this file to 'C:\MapR' and unzip this file. Then a directory named 'mapDATAge-main' would be generated in 'C:\MapR'. The scripts 'Server.R' and 'ui.R' could be found in 'C:\MapR\mapDATAge-main'. 
-![image](link)
+![image](https://github.com/xuefenfei712/mapDATAge/blob/main/mapdatege-download.png)
 
 Then you can start mapDATAge app by running the command line below:
+
 `path="C:\\MapR\\mapDATAge-main"
 shiny::runApp(appDir = path)`
 
