@@ -26,10 +26,8 @@ Help manual for the useage of mapDATAge ![click here!](https://github.com/xuefen
 
 Plese run this command below to lunch mapDATAge
 
-`if(interactive()){
-shiny::runUrl("https://github.com/xuefenfei712/mapDATAge/archive/refs/heads/main.zip")
-}`
-
+`shiny::runUrl("https://github.com/xuefenfei712/mapDATAge/archive/refs/heads/main.zip")`
+OR
 `shiny::runGitHub("mapDATAge","xuefenfei712", ref="main")`
 
 These two command will download the code of mapDATAge from Github to a temporary direction of your computer and then launch the mapDATAge in the web browser. Once the web brower was closed, the downloaded code would be deleted from your computer.
