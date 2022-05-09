@@ -19,7 +19,7 @@ library(dplyr)
 library(rcolors)
 library(forcats)
 library(foreach)
-
+library(htmlwidgets)
 source("code/Mergeawsome.R")
 ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
                          # headerPanel("aDNA Data exploration"),
