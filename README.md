@@ -6,13 +6,13 @@ The mapDATAge package is designed to explore the presence of geographic and temp
 (1) the spatial and temporal distributions of a given set of samples (SMAP) or alleles (AMAP);
 (2) temporal allelic trajectories (TRAJECTORY);
 (3) maps of individual ancestry profiles on a map (ANCESTRY);
-(4) PCA (or MDS) and map related maps of geographicspatio--temporal distributions (PCA);
-(5) geographicspatio-temporal distributions of alleles at one or multiple loci (MULTIPLESNPS);
-(6) (sub)haplogroup on adistribution maps (HAPLO), and;
-(7) finally, options are provided to automatically generate figures applying a preselected range of temporal and spatial and temporal parameters, which can be useful to contrast data from different loci and/or species (ONECLICK). 
+(4) PCA (or MDS) and map related maps of spatio-temporal distributions (PCA);
+(5) spatio-temporal distributions of alleles at one or multiple loci (MULTIPLESNPS);
+(6) maps of (sub)haplogroups (HAPLO), and;
+(7) finally, options are provided to automatically generate figures, following the selection of a preselected range of temporal and spatial and temporal parameters, which can be useful to contrast data from different loci and/or species (ONECLICK). 
 
 ## Getting Started
-Help manual for the useage of mapDATAge ![click here!](https://github.com/xuefenfei712/mapDATAge/blob/main/mapDATAgeInstructions.pdf)
+A manual providing instructions and examples for using mapDATAge can be found [here!](https://github.com/xuefenfei712/mapDATAge/blob/main/mapDATAgeInstructions.pdf)
 
 ### Installing
 
@@ -24,20 +24,20 @@ Help manual for the useage of mapDATAge ![click here!](https://github.com/xuefen
 
 ### Launch mapDATAge from a URL or Github
 
-Plese run this command below to lunch mapDATAge in R or Rstudio 
+Please run one of the two commands below to launch mapDATAge in R or Rstudio
 
 `shiny::runUrl("https://github.com/xuefenfei712/mapDATAge/archive/refs/heads/main.zip")`
 
 
 `shiny::runGitHub("mapDATAge","xuefenfei712", ref="main")`
 
-These two command will download the code of mapDATAge from Github to a temporary direction of your computer and then launch the mapDATAge in the web browser. Once the web browser was closed, the downloaded code would be deleted from your computer.
+These two commands will download the code of mapDATAge from Github to a local, temporary directory on your computer and then launch the mapDATAge in your default web browser. Once the web browser is closed, the downloaded code is deleted from your computer.
 
-If you want to use it locally, please download the source code of mapDATAge from Github to a fixed directory of your computer, such as 'C:\\MapR' on windows. Following the procedure illustrated in the following figure, a zip file named 'mapDATAge-master.zip' would be downloaded to the disk of your computer. Move this file to 'C:\\MapR' and unzip this file. Then a directory named 'mapDATAge-main' would be generated in 'C:\\MapR'. The scripts 'Server.R' and 'ui.R' could be found in 'C:\\MapR\\mapDATAge-main'. 
+If you want to use mapDATAge locally, please download the source code from Github to a local directory on your computer, such as 'C:\\MapR' on windows. Following the procedure illustrated in the following figure, a zip file named 'mapDATAge-master.zip' can be downloaded to your local computer disk. Move this file to 'C:\\MapR' and unzip it. Then a directory named 'mapDATAge-main' can be found in 'C:\\MapR'. The scripts 'Server.R' and 'ui.R' could be found in 'C:\\MapR\\mapDATAge-main'. 
 
 ![image](https://github.com/xuefenfei712/mapDATAge/blob/main/mapdatege-download.png)
 
-Then you can start mapDATAge app by running the command line below:
+Then you can start mapDATAge by running the command line below:
 
 `path="C:\\MapR\\mapDATAge-main"`
 
@@ -50,10 +50,10 @@ Xuexue Liu: xuexue.liu@univ-tlse3.fr
 
 ## Citation
 
-XL, OL, [mapDATAge: a ShinyR package to chart ancient DNA data through space and time]
+Xuexue Liu, Ludovic Orlando, mapDATAge: a ShinyR package to chart ancient DNA data through space and time.
 
 Centre for Anthropobiology and Genomics of Toulouse (CAGT) (https://cagt.cnrs.fr/)
 
-## Acknowledgement
+## Acknowledgements
 
 We thank Dr Pablo Librado for fruitful comments on earlier versions of the manuscript and for formatting the horse ancestry data.

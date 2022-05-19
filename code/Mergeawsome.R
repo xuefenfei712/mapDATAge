@@ -1,3 +1,4 @@
+
 colname=c("SAMPLE","AGE","LATITUDE","LONGITUDE","SITE","SPECIES","SEX")
 validate_input_files <- function(table) {
   if (is.null(colnames(table))) {
@@ -7,14 +8,16 @@ validate_input_files <- function(table) {
     stop("Please make sure that all required columns are provided in the uploaded table")
   }
   if (!(all(sapply(table[,c("AGE","LATITUDE","LONGITUDE")],is.numeric)))) {
-    stop("Please make sure that all required columns are provided in the uploaded table!")
+    stop("Please make sure that age, latitude and longitude columns are numeric!")
+  }
+  if (!(all(sapply(table[,c("SITE","SPECIES","SEX","SAMPLE")],is.character)))) {
+    stop("Please make sure that sample, sex, species, site columns are numeric!")
   }
 }
 getsnpname=function(data){
   unique(stringi::stri_replace_first_regex(stringi::stri_replace_last_regex(names(data)[grep("SNP_",names(data))],pattern="_[A,C,G,T,D]",replacement = ""),"SNP_",""))
 }
 getallename=function(data,snp){
-  #c(gsub("_","",stri_extract_last_regex(names(data)[grep("SNP_",names(data))],"[A,C,G,T]")))
   substring(names(data)[grep(snp,names(data))],nchar(names(data)[grep(snp,names(data))]),nchar(names(data)[grep(snp,names(data))]))
 }
 addreadCounts=function(data,snp){
@@ -58,6 +61,7 @@ filter=function(data){
   data=data[,-grep("Total",names(data))]
 }
 MergeawsomeCount=function(data,mult=FALSE,drop=FALSE){
+  charvec=c("SITE","SAMPLE","SPECIES","SEX")
     if(mult==TRUE){
       data=data[apply(data %>% select(starts_with("SNP")),1,sum)>0,]
       snpname=getsnpname(data)
@@ -80,16 +84,10 @@ MergeawsomeCount=function(data,mult=FALSE,drop=FALSE){
         a=names(d)[grep("SNP",names(d))]
         list <- lapply(1:length(d3$origins), function(x) {
           point <- d3[x, ]
-          point$SITE <-
-            stringr::str_flatten(d2[d3$origins[[x]], ]$SITE, collapse = ",")
-          point$SAMPLE <-
-            stringr::str_flatten(d2[d3$origins[[x]], ]$SAMPLE, collapse = ", ")
-          point$SPECIES <-
-            stringr::str_flatten(d2[d3$origins[[x]], ]$SPECIES, collapse = ", ")
-          point$SEX <-
-            stringr::str_flatten(d2[d3$origins[[x]], ]$SEX, collapse = ", ")
+          point[,charvec]=apply((data.frame(d2[d3$origins[[x]], charvec])[,charvec]),2,function(x) paste(x, collapse=", "))
           point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
           point$Counts <- sum(d2[d3$origins[[x]], ]$Counts, na.rm = TRUE)
+          #point[,a]=apply(data.frame(d2[d3$origins[[x]], a])[,1:2],2,mean)
           for(i in a){
             point[,i] <- round(mean(data.frame(d2[d3$origins[[x]], i])[,i], na.rm = TRUE),2)
           }
@@ -109,6 +107,7 @@ MergeawsomeCount=function(data,mult=FALSE,drop=FALSE){
     }
 }
   Mergeawsome=function(data,mult=FALSE,drop=FALSE){
+    charvec=c("SITE","SAMPLE","SPECIES","SEX")
     if(mult==TRUE){
         data=data[apply(data %>% select(starts_with("SNP")),1,sum)>0,]
         d=data
@@ -120,19 +119,13 @@ MergeawsomeCount=function(data,mult=FALSE,drop=FALSE){
           a=names(d)[grep("SNP",names(d))]
           list <- lapply(1:length(d3$origins), function(x) {
             point <- d3[x, ]
-            point$SITE <-
-              stringr::str_flatten(d2[d3$origins[[x]], ]$SITE, collapse = ",")
-            point$SAMPLE <-
-              stringr::str_flatten(d2[d3$origins[[x]], ]$SAMPLE, collapse = ", ")
-            point$SPECIES <-
-              stringr::str_flatten(d2[d3$origins[[x]], ]$SPECIES, collapse = ", ")
-            point$SEX <-
-              stringr::str_flatten(d2[d3$origins[[x]], ]$SEX, collapse = ", ")
+            point[,charvec]=apply((data.frame(d2[d3$origins[[x]], charvec])[,charvec]),2,function(x) paste(x, collapse=", "))
             point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
             point$Counts <- sum(d2[d3$origins[[x]], ]$Counts, na.rm = TRUE)
-            for(i in a){
-              point[,i] <- round(mean(data.frame(d2[d3$origins[[x]], i])[,i], na.rm = TRUE),2)
-            }
+            #for(i in a){
+             # point[,i] <- round(mean(data.frame(d2[d3$origins[[x]], i])[,i], na.rm = TRUE),2)
+            #}
+            point[,a]=apply(data.frame(d2[d3$origins[[x]], a])[,1:2],2,mean)
             return(point)
           })
           new_d <- do.call(rbind, list)
@@ -154,37 +147,33 @@ MergeawsomeCount=function(data,mult=FALSE,drop=FALSE){
     if(type=="ANCE"){
       char=names(data)[grep("ANCE",names(data))]
       d=data[,c(chc,char,num)]
-    }else if(!is.null(type) && type!="ANCE"){
+    }#else if(!is.null(type) && type!="ANCE"){
      # cat=paste("CAT_",type,sep="")
-      cat=names(data)[grep(type,names(data))]
-      d=data[,c(chc,cat,num)]
+      #cat=names(data)[grep(type,names(data))]
+     # d=data[,c(chc,cat,num)]
       #d=d[d[,cat] !="unknown",]
       #yname=unique(sort(d[,cat]))
-    }
+   # }
     d$Count=rep(1,nrow(d))
     d2 <- sf::st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
     d3 <- sf::st_intersection(d2)
     list <- parallel::mclapply(1:length(d3$origins), function(x) {
       point <- d3[x, ]
-      point[,chc]=foreach(i=1:length(chc), .combine=cbind) %dopar% {
-        point[,chc[i]]=stringr::str_flatten(data.frame(d2[d3$origins[[x]], chc[i]])[,chc[i]], collapse = ", ")
-      }
+      point[,chc]=apply((data.frame(d2[d3$origins[[x]], chc])[,chc]),2,function(x) paste(x, collapse=", "))
       point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
       point$Count <- sum(d2[d3$origins[[x]], ]$Count, na.rm = TRUE)
       ###character type
-      if(type=="ANCE"){
-        point[,char]=foreach(i=1:length(char), .combine=cbind) %dopar% {
-          point[,char[i]]=round(mean(data.frame(d2[d3$origins[[x]], char[i]])[,char[i]],na.rm=TRUE),2)
-        }
-      }else if(!is.null(type) && type!="ANCE"){
-        #catyname=paste(type,"_",yname,sep="")
-        catname=names(data)[grep(type,names(data))]
-        point[,catname]=foreach(i=1:length(catname), .combine=cbind) %dopar% {
-          point[,catname[i]]=round(mean(data.frame(d2[d3$origins[[x]], catname[i]])[,catname[i]],na.rm=TRUE),2)
-        }
-       # point[,catyname]=matrix(0,ncol=length(catyname),nrow=1)
-        #point[,catyname]=catsorting(data.frame(d2[d3$origins[[x]], cat][,cat])[,1])
-      }
+      #if(type=="ANCE"){
+        point[,char]=apply(data.frame(d2[d3$origins[[x]], char])[,1:length(char)],2,mean)
+        #point[,char]=foreach(i=1:length(char), .combine=cbind) %do% {
+         # point[,char[i]]=round(mean(data.frame(d2[d3$origins[[x]], char[i]])[,char[i]],na.rm=TRUE),2)
+       # }
+     # }else if(!is.null(type) && type!="ANCE"){
+       # catname=names(data)[grep(type,names(data))]
+       # point[,catname]=foreach(i=1:length(catname), .combine=cbind) %dopar% {
+        #  point[,catname[i]]=round(mean(data.frame(d2[d3$origins[[x]], catname[i]])[,catname[i]],na.rm=TRUE),2)
+       # }
+     # }
       return(point)
     })
     new_d <- do.call(rbind, list)
@@ -192,31 +181,28 @@ MergeawsomeCount=function(data,mult=FALSE,drop=FALSE){
     new_d$LATITUDE <- sf::st_coordinates(new_d)[, "Y"]
     sf::st_geometry(new_d) <- NULL
     as.data.frame(new_d)
-    #if(!is.null(type) && type!="ANCE"){
-     # new_d[,cat]=NULL
-   # }
     new_d$SecondSite=paste(as.character(new_d$SITE),"_layer",sep="")
     as.data.frame(new_d)
   }
   #####mergeCAT for haplo#######
-  mergeCAT=function(data,type){
+ # mergeCAT=function(data,type){
     #cat=names(data)[grep("CAT_",names(data))]
     # name=unique(stri_replace_first_regex(names(data)[grep("CAT",names(data))],"CAT_",""))
-    cat=paste("CAT_",type,sep="")
-    data2=data[data[,cat] !="unknown",]
-    yname=sort(unique(data2[,cat]))
-    ymax=matrix(0,nrow=nrow(data2),ncol=length(yname))
-    colnames(ymax)=yname
-    for(i in 1:nrow(ymax)){
-      ymax[i,data2[i,cat]]=1
-    }
-    ymax=as.data.frame(ymax)
-    colnames(ymax)=paste(type,yname,sep="_")
-    ymax$Count=apply(ymax,1,sum)
-    yresult=cbind(data2[,c("SAMPLE","AGE","SITE","LATITUDE","LONGITUDE","SEX","SPECIES")],ymax)
-    as.data.frame(yresult)
-    Mergetype(yresult,type=type)
-  }
+  #  cat=paste("CAT_",type,sep="")
+  #  data2=data[!data[,cat]%in%c("unknown","NA","NON"),]
+  #  yname=sort(unique(data2[,cat]))
+  #  ymax=matrix(0,nrow=nrow(data2),ncol=length(yname))
+  #  colnames(ymax)=yname
+  #  for(i in 1:nrow(ymax)){
+   #   ymax[i,data2[i,cat]]=1
+   # }
+  #  ymax=as.data.frame(ymax)
+  #  colnames(ymax)=paste(type,yname,sep="_")
+  #  ymax$Count=apply(ymax,1,sum)
+   # yresult=cbind(data2[,c("SAMPLE","AGE","SITE","LATITUDE","LONGITUDE","SEX","SPECIES")],ymax)
+   # as.data.frame(yresult)
+  #  Mergetype(yresult,type=type)
+ # }
 automaticFigures=function(par,path){
   spexa=c(unique(unlist(strsplit(as.character(par[2,2]),"[_]"))))
   sexa=c(unlist(strsplit(as.character(par[1,2]),"[_]"))[1],unlist(strsplit(as.character(par[1,2]),"[_]"))[2])
@@ -435,17 +421,17 @@ if(length(grep("ANCE",names(data1)))>0){
 }
 ###newadd
 Merge=function(data){
-  d=data
+  d=data[,c("SITE","SAMPLE","SPECIES","SEX","AGE","LONGITUDE", "LATITUDE")]
   d$Count=rep(1,nrow(d))
   charvec=c("SITE","SAMPLE","SPECIES","SEX")
   d2 <- sf::st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
   d3 <- sf::st_intersection(d2)
-  #d2[,charvec]=""
   list <- parallel::mclapply(1:length(d3$origins), function(x) {
     point <- d3[x, ]
-    point[,charvec]=foreach(i=1:length(charvec), .combine=cbind) %dopar% {
-      point[,charvec[i]]=stringr::str_flatten(data.frame(d2[d3$origins[[x]], charvec[i]])[,charvec[i]], collapse = ", ")
-    }
+    point[,charvec]=apply((data.frame(d2[d3$origins[[x]], charvec])[,charvec]),2,function(x) paste(x, collapse=", "))
+    #point[,charvec]=foreach(i=1:length(charvec), .combine=cbind) %dopar% {
+      #point[,charvec[i]]=stringr::str_flatten(data.frame(d2[d3$origins[[x]], charvec[i]])[,charvec[i]], collapse = ", ")
+    #}
     point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
     point$Count <- sum(d2[d3$origins[[x]], ]$Count, na.rm = TRUE)
     return(point)
@@ -492,16 +478,19 @@ MergeSNP=function(data,snp=NULL,gtp=NULL,drop=FALSE){
   d3 <- sf::st_intersection(d2)
   list <- parallel::mclapply(1:length(d3$origins), function(x) {
     point <- d3[x, ]
-    point[,chc]=foreach(i=1:length(chc), .combine=cbind) %do% {
-      point[,chc[i]]=stringr::str_flatten(data.frame(d2[d3$origins[[x]], chc[i]])[,chc[i]], collapse = ", ")
-    }
+    point[,chc]=apply((data.frame(d2[d3$origins[[x]], chc])[,chc]),2,function(x) paste(x, collapse=", "))
+    #point[,chc]=foreach(i=1:length(chc), .combine=cbind) %dopar% {
+      #point[,chc[i]]=stringr::str_flatten(data.frame(d2[d3$origins[[x]], chc[i]])[,chc[i]], collapse = ", ")
+   # }
     point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
     point$Count <- sum(d2[d3$origins[[x]], ]$Count, na.rm = TRUE)
     a=names(d)[grep(snp,names(d))]
     if(gtp=="Genotype"){
-      point[,a]=foreach(i=1:length(a), .combine=cbind) %do% {
-        point[,a[i]]=round(mean(data.frame(d2[d3$origins[[x]], a[i]])[,a[i]],na.rm=TRUE),2)
-      }}else if(gtp=="ReadCounts"){
+      #point[,a]=foreach(i=1:length(a), .combine=cbind) %dopar% {
+        #point[,a[i]]=round(mean(data.frame(d2[d3$origins[[x]], a[i]])[,a[i]],na.rm=TRUE),2)
+     # }
+      point[,a]=apply(data.frame(d2[d3$origins[[x]], a])[,1:2],2,mean)
+      }else if(gtp=="ReadCounts"){
         point[,a]=foreach(i=1:length(a), .combine=cbind) %do% {
           point[,a[i]]= round(meansampling(matrix(unlist(d2[d3$origins[[x]],a[i]]),ncol=3,byrow=FALSE)[,1],d2[d3$origins[[x]], ]$ReadCount),2)
         }}
@@ -514,27 +503,25 @@ MergeSNP=function(data,snp=NULL,gtp=NULL,drop=FALSE){
   sf::st_geometry(new_d) <- NULL
   new_d$SecondSite=paste(as.character(new_d$SITE),"_lay",sep="")
   new_d=as.data.frame(new_d)
-  new_d[,"NON"]=1-apply(new_d %>% select(matches(snp)),1,sum)
+  new_d[,"NON"]=min(1-apply(new_d %>% select(matches(snp)),1,sum),0)
   as.data.frame(new_d)
 }
-mergeCAT=function(data,type){
-  #cat=names(data)[grep("CAT_",names(data))]
-  # name=unique(stri_replace_first_regex(names(data)[grep("CAT",names(data))],"CAT_",""))
-  cat=paste("CAT_",type,sep="")
-  data2=data[data[,cat] !="unknown",]
-  yname=sort(unique(data2[,cat]))
-  ymax=matrix(0,nrow=nrow(data2),ncol=length(yname))
-  colnames(ymax)=yname
-  for(i in 1:nrow(ymax)){
-    ymax[i,data2[i,cat]]=1
-  }
-  ymax=as.data.frame(ymax)
-  colnames(ymax)=paste(type,yname,sep="_")
-  ymax$Count=apply(ymax,1,sum)
-  yresult=cbind(data2[,c("SAMPLE","AGE","SITE","LATITUDE","LONGITUDE","SEX","SPECIES")],ymax)
-  as.data.frame(yresult)
-  Mergetype(yresult,type=type)
-}
+#mergeCAT=function(data,type){
+ # cat=paste("CAT_",type,sep="")
+ #  data2=data[!data[,cat]%in%c("unknown","NA","NON"),]#data2=data[data[,cat] !="unknown",]
+ # yname=sort(unique(data2[,cat]))
+ # ymax=matrix(0,nrow=nrow(data2),ncol=length(yname))
+ # colnames(ymax)=yname
+ # for(i in 1:nrow(ymax)){
+  #  ymax[i,data2[i,cat]]=1
+ # }
+ # ymax=as.data.frame(ymax)
+ # colnames(ymax)=paste(type,yname,sep="_")
+ # ymax$Count=apply(ymax,1,sum)
+ # yresult=cbind(data2[,c("SAMPLE","AGE","SITE","LATITUDE","LONGITUDE","SEX","SPECIES")],ymax)
+ # as.data.frame(yresult)
+ # Mergetype(yresult,type=type)
+#}
 ###pca plot
 drawpca=function(data,sex,species,st,end,pca,lat1,lat2,log1,log2,pc1,pc2){
   st=as.numeric(st);end=as.numeric(end)
@@ -712,7 +699,7 @@ AllePlot=function(dat,sex,species,gt,windowsize,stepsize,st,end,snp,lat1,lat2,lo
       #for(i in 1:nrow(timtab)){
       a=data[data$AGE>=as.numeric(timtab[i,1]) & data$AGE<as.numeric(timtab[i,2]),gtt]
       timtab[i,5]=ifelse(length(a)==0,0,mean(a,na.rm=TRUE)/2)
-      timtab[i,6]=ifelse(length(a)==0,0,sqrt(timtab[i,5]*(1-timtab[i,5])/length(a)))#sqrt(sd(a, na.rm = TRUE)/length(a))#
+      timtab[i,6]=ifelse(length(a)==0,0,1.96*sqrt(timtab[i,5]*(1-timtab[i,5])/length(a)/2))#sqrt(sd(a, na.rm = TRUE)/length(a))#
       timtab[i,7]=length(a)
     }
   }else if(gtp=="ReadCounts"){
@@ -763,36 +750,59 @@ findLocations <- function(shape, location_coordinates, location_id_colname){
   polygon_coordinates <- shape$geometry$coordinates
   feature_type <- shape$properties$feature_type
   if(feature_type %in% c("rectangle","polygon")) {
-    
     # transform into a spatial polygon
     drawn_polygon <- Polygon(do.call(rbind,lapply(polygon_coordinates[[1]],function(x){c(x[[1]][1],x[[2]][1])})))
-    
     # use 'over' from the sp package to identify selected locations
     selected_locs <- sp::over(location_coordinates
                               , sp::SpatialPolygons(list(sp::Polygons(list(drawn_polygon),"drawn_polygon"))))
     
     # get location ids
     x = (location_coordinates[which(!is.na(selected_locs)), location_id_colname])
-    
     selected_loc_id = as.character(x[[location_id_colname]])
-    
     return(selected_loc_id)
-    
   } else if (feature_type == "circle") {
-    
     center_coords <- matrix(c(polygon_coordinates[[1]], polygon_coordinates[[2]])
                             , ncol = 2)
     
-    # get distances to center of drawn circle for all locations in location_coordinates
-    # distance is in kilometers
     dist_to_center <- spDistsN1(location_coordinates, center_coords, longlat=TRUE)
-    
-    # get location ids
     # radius is in meters
     x <- location_coordinates[dist_to_center < shape$properties$radius/100000, location_id_colname]
-    #
     selected_loc_id = as.character(x[[location_id_colname]])
-    
     return(selected_loc_id)
   }
+}
+catsorting=function(data,type){
+  sub=as.data.frame(table(data))
+  sub2=matrix(as.numeric(sum(sub[,2]))/length(data),ncol=nrow(sub))
+  colnames(sub2)=paste(type,"_",sub[,1],sep="")
+  data.frame(sub2)
+}
+MergeMT=function(data,type=NULL,drop=FALSE){
+  chc=c("SITE","SAMPLE","SPECIES","SEX");num=c("LATITUDE","LONGITUDE","AGE")
+  cat=paste("CAT_",type,sep="")
+  d=data[,c(chc,cat,num)]
+  d=d[d[,cat] !="unknown",]
+  yname=sort(unique(d[,cat]))
+  d$Count=rep(1,nrow(d))
+  d2 <- sf::st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
+  d3 <- sf::st_intersection(d2)
+  list <- parallel::mclapply(1:length(d3$origins), function(x) {
+    point <- d3[x, ]
+    point[,chc]=apply((data.frame(d2[d3$origins[[x]], chc])[,chc]),2,function(x) paste(x, collapse=", "))
+    point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
+    point$Count <- sum(d2[d3$origins[[x]], ]$Count, na.rm = TRUE)
+    ###character type
+    catyname=paste(type,"_",yname,sep="")
+    point[,catyname]=matrix(0,ncol=length(catyname),nrow=1)
+    point[,names(catsorting(data.frame(d2[d3$origins[[x]], cat][,cat])[,1],type=type))]=catsorting(data.frame(d2[d3$origins[[x]], cat][,cat])[,1],type=type)
+    return(point)
+  })
+  new_d <- do.call(rbind, list)
+  new_d$LONGITUDE <- sf::st_coordinates(new_d)[, "X"]
+  new_d$LATITUDE<- sf::st_coordinates(new_d)[, "Y"]
+  sf::st_geometry(new_d) <- NULL
+  as.data.frame(new_d)
+  new_d[,cat]=NULL
+  new_d$SecondSite=paste(as.character(new_d$SITE),"_layer",sep="")
+  as.data.frame(new_d)
 }

@@ -14,9 +14,6 @@ server <- function(input, output,session)({
     req(tabl())
     test=tabl()
     colnames(test)=toupper(names(tabl()))
-    test$LATITUDE=round(as.numeric(test$LATITUDE),2)
-    test$LONGITUDE=round(as.numeric(test$LONGITUDE),2)
-    test$AGE=round(as.numeric(test$AGE),2)
     test
   })
   output$fileStatus <- eventReactive(input$go, {
@@ -618,14 +615,14 @@ server <- function(input, output,session)({
     numericInput("allymin",
                  label = "Input the min y",
                  min = -1,
-                 max = 1,value=0
+                 max = 1,value=-0.5
     )
   })
   output$alloutymax <- renderUI({
     numericInput("allymax",
                  label = "Input the max y",
                  min = -1,
-                 max = 2,value=1
+                 max = 2,value=1.5
     )
   })
   output$allsampling <- renderUI({
@@ -1233,7 +1230,7 @@ server <- function(input, output,session)({
     selectInput("snplab",
                 label = "Select labels",
                 choices =  names(filteredData5())[names(filteredData5())%in% c("n.overlaps","origins","SecondSite")==FALSE],
-                multiple = TRUE,selected="SAMPLE")
+                multiple = TRUE,selected="Sample")
   })
   # render color
   colorpall <- reactive({
@@ -1358,7 +1355,7 @@ server <- function(input, output,session)({
 	selectInput("hapsx",
                   label = "Select sex",
                   choices = c(Choose='',unique(taxonomy_table()[taxonomy_table()[,paste("CAT_",input$hapty,sep="")]!="unknown","SEX"])),#unique(taxonomy_table()$SEX),
-                  multiple = TRUE,selected=unique(taxonomy_table()[taxonomy_table()[,paste("CAT_",input$hapty,sep="")]!="unknown","SEX"])[1])#unique(taxonomy_table()$SEX))
+                  multiple = TRUE)#,selected=unique(taxonomy_table()[taxonomy_table()[,paste("CAT_",input$hapty,sep="")]!="unknown","Sex"])[1])#unique(taxonomy_table()$SEX))
 	}
   })
   output$hapoutage <- renderUI({
@@ -1416,7 +1413,7 @@ server <- function(input, output,session)({
 	req(input$hapsp)
 	req(taxonomy_table())
      if(length(select(taxonomy_table(),starts_with("CAT_")))>0 & length(input$hapty)==1){
-       MergeMT(taxonomy_table()[taxonomy_table()$SEX%in%input$hapsx & 
+	 mergeCAT(taxonomy_table()[taxonomy_table()$SEX%in%input$hapsx & 
 	 taxonomy_table()$SPECIES%in%input$hapsp & taxonomy_table()$AGE >= as.numeric(input$hapage[1]) &  taxonomy_table()$AGE < as.numeric(input$hapage[2]) &
 	 taxonomy_table()$LATITUDE >= as.numeric(input$haplat[1]) &  taxonomy_table()$LATITUDE < as.numeric(input$haplat[2]) &
 	 taxonomy_table()$LONGITUDE >= as.numeric(input$haplog[1]) &  taxonomy_table()$LONGITUDE < as.numeric(input$haplog[2]),],type=input$hapty)
@@ -1427,7 +1424,7 @@ server <- function(input, output,session)({
     selectInput("haplab",
                 label = "Select labels",
                 choices = names(filteredData6())[names(filteredData6())%in% c("n.overlaps","origins","SecondSite")==FALSE],
-                multiple = TRUE,selected="SAMPLE")
+                multiple = TRUE,selected="Sample")
   })
   output$hapouthap <- renderUI({
   req(input$hapty)
@@ -1573,7 +1570,7 @@ server <- function(input, output,session)({
         plot.title = element_text(size=15, family="Arial"),plot.margin=unit(c(1,0.3,0.5,0.3),'cm'))
     })
     leafletProxy("hapmap",data=selected)%>% 
-      addCircleMarkers(lng=selected$LONGITUDE,lat=selected$LATITUDE,
+      addCircleMarkers(lng=selected$Longitude,lat=selected$Latitude,
                        color = "red",radius=sqrt(selected$Count)/1.2,weight=1,
                        fillOpacity = 0.5,            
                        layerId = (selected$SecondSite))
@@ -1670,6 +1667,4 @@ server <- function(input, output,session)({
     outpath=Thesheets_dir1()
     automaticFigures(Para_table(),outpath)
   })
- 
 })
-

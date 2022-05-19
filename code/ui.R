@@ -19,7 +19,6 @@ library(dplyr)
 library(rcolors)
 library(forcats)
 library(foreach)
-#library(doParallel)
 
 source("code/Mergeawsome.R")
 ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
