@@ -2,6 +2,7 @@
 library(foreach)
 pedfile="SNPrs4988235.ped"
 ped=read.table(pedfile,header=F,sep="\t",stringsAsFactors = F)
+ped=ped[ped[,7]!=0 & ped[,8]!=0,]
 infofile="human-EU-info.txt"
 info=read.table(infofile,header=T,sep="\t",stringsAsFactors = F)
 snp=unique(ped[,7])[2:3]

@@ -25,31 +25,20 @@ addreadCounts=function(data,snp){
   as.data.frame(cbind(data,ReadCount))
 }
 
-meansampling=function(xx,tt){
-tab=cbind(xx,as.numeric(tt))
-freq=""
-sampletime=100
-if(nrow(tab)==0){
-  freq=0
-}else if(nrow(tab)>0){
-  outmatrix=matrix("",ncol=sampletime,nrow=nrow(tab))
-  for(s in 1:sampletime){
-    for(j in 1:nrow(tab)){
-      if((tab[j,2]-tab[j,1])>0 & tab[j,2]>1){
-        outmatrix[j,s]=sample(c(rep(1,tab[j,1]),rep(0,(tab[j,2]-tab[j,1]))),1)
-      }else if(tab[j,2]==tab[j,1] & tab[j,2]>0){
-        outmatrix[j,s]=1
-      }else if((tab[j,2]-tab[j,1])>0 & tab[j,2]==1){
-        outmatrix[j,s]=0
-      }else{
-        outmatrix[j,s]=0
-      }
+samtime=function(xx,tt){
+  sampletime=100
+  indata=cbind(xx,tt)
+  for(i in 1:nrow(indata)){
+    if(indata[i,2]>=1 & indata[i,1]>=1  &  nrow(indata)>0){
+      indata[i,1]=mean(sample(c(rep(1,indata[i,1]),rep(0,indata[i,2])),sampletime,replace =TRUE),na.rm = T)
+    }else if(indata[i,2]==0 &  indata[i,1]>0){
+      indata[i,1]=1
+    }else{
+      indata[i,1]=0
     }
   }
-}
-  outmatrix[is.na(outmatrix)]=0
-  freq=mean(apply(apply(outmatrix,1,as.numeric),2,mean))
-  as.numeric(freq)
+  indata[,2]=1-indata[,1]
+  as.data.frame(indata)
 }
 
 filter=function(data){
@@ -60,85 +49,33 @@ filter=function(data){
   data[!names(data)%in%"TotalCounts"]
   data=data[,-grep("Total",names(data))]
 }
-MergeawsomeCount=function(data,mult=FALSE,drop=FALSE){
-  charvec=c("SITE","SAMPLE","SPECIES","SEX")
-    if(mult==TRUE){
-      data=data[apply(data %>% select(starts_with("SNP")),1,sum)>0,]
-      snpname=getsnpname(data)
-      for(name in snpname){
-        data$Counts=if_else(rowSums(data[,names(data)[grep("SNP",names(data))]])>0,1,0)
-        data=data[data$Count>0,]
-        total=apply(data%>% select(matches(name)),1,sum)
-        for(j in names(data)[grep(name,names(data))]){
-          inputdata=cbind(data[,j],total)
-          for(i in 1:nrow(inputdata)){
-            data[i,j]=meansampling(inputdata[i,1],inputdata[i,2])
-          }
-        }
-      }
-      d=data
-      d2 <- st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
-      d3 <- st_intersection(d2)
-      d3$origins
-      if(length(grep("SNP",names(d)))>0){
-        a=names(d)[grep("SNP",names(d))]
-        list <- lapply(1:length(d3$origins), function(x) {
-          point <- d3[x, ]
-          point[,charvec]=apply((data.frame(d2[d3$origins[[x]], charvec])[,charvec]),2,function(x) paste(x, collapse=", "))
-          point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
-          point$Counts <- sum(d2[d3$origins[[x]], ]$Counts, na.rm = TRUE)
-          #point[,a]=apply(data.frame(d2[d3$origins[[x]], a])[,1:2],2,mean)
-          for(i in a){
-            point[,i] <- round(mean(data.frame(d2[d3$origins[[x]], i])[,i], na.rm = TRUE),2)
-          }
-          return(point)
-        })
-        new_d <- do.call(rbind, list)
-        new_d$LONGITUDE <- st_coordinates(new_d)[, "X"]
-        new_d$LATITUDE <- st_coordinates(new_d)[, "Y"]
-        #new_d$SecondSite=new_d$Site
-        st_geometry(new_d) <- NULL
-        #new_d=new_d[apply(new_d %>% select(starts_with("SNP")),1,sum)>0,]
-        as.data.frame(new_d)
-        new_d$AGE=as.numeric(new_d$AGE)
-        filter(new_d)
-        as.data.frame(new_d)
-      }
-    }
-}
-  Mergeawsome=function(data,mult=FALSE,drop=FALSE){
+
+  Mergeawsome=function(data,mult=FALSE,snplist=NULL,drop=FALSE){
     charvec=c("SITE","SAMPLE","SPECIES","SEX")
-    if(mult==TRUE){
-        data=data[apply(data %>% select(starts_with("SNP")),1,sum)>0,]
-        d=data
+    if(mult==TRUE & length(snplist)>0){
+       snpname=unique(stringi::stri_replace_first_regex(stringi::stri_replace_last_regex(grep("SNP_",snplist,value = T),pattern="_[A,C,G,T,D]",replacement = ""),"SNP_",""))
+        d=data[,c(charvec,snplist,"LATITUDE","LONGITUDE","AGE")]
         d$Counts=rep(1,nrow(d))
         d2 <- st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
         d3 <- st_intersection(d2)
         d3$origins
-        if(length(grep("SNP",names(d)))>0){
           a=names(d)[grep("SNP",names(d))]
           list <- lapply(1:length(d3$origins), function(x) {
             point <- d3[x, ]
             point[,charvec]=apply((data.frame(d2[d3$origins[[x]], charvec])[,charvec]),2,function(x) paste(x, collapse=", "))
             point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
             point$Counts <- sum(d2[d3$origins[[x]], ]$Counts, na.rm = TRUE)
-            #for(i in a){
-             # point[,i] <- round(mean(data.frame(d2[d3$origins[[x]], i])[,i], na.rm = TRUE),2)
-            #}
             point[,a]=apply(data.frame(d2[d3$origins[[x]], a])[,1:2],2,mean)
             return(point)
           })
           new_d <- do.call(rbind, list)
           new_d$LONGITUDE <- sf::st_coordinates(new_d)[, "X"]
           new_d$LATITUDE <- sf::st_coordinates(new_d)[, "Y"]
-          #new_d$SecondSite=new_d$Site
           st_geometry(new_d) <- NULL
-          #new_d=new_d[apply(new_d %>% select(starts_with("SNP")),1,sum)>0,]
           as.data.frame(new_d)
           new_d$AGE=as.numeric(new_d$AGE)
           filter(new_d)
           as.data.frame(new_d)
-        }
         }
   }
 
@@ -147,33 +84,16 @@ MergeawsomeCount=function(data,mult=FALSE,drop=FALSE){
     if(type=="ANCE"){
       char=names(data)[grep("ANCE",names(data))]
       d=data[,c(chc,char,num)]
-    }#else if(!is.null(type) && type!="ANCE"){
-     # cat=paste("CAT_",type,sep="")
-      #cat=names(data)[grep(type,names(data))]
-     # d=data[,c(chc,cat,num)]
-      #d=d[d[,cat] !="unknown",]
-      #yname=unique(sort(d[,cat]))
-   # }
+    }
     d$Count=rep(1,nrow(d))
     d2 <- sf::st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
     d3 <- sf::st_intersection(d2)
-    list <- parallel::mclapply(1:length(d3$origins), function(x) {
+    list <- lapply(1:length(d3$origins), function(x) {
       point <- d3[x, ]
       point[,chc]=apply((data.frame(d2[d3$origins[[x]], chc])[,chc]),2,function(x) paste(x, collapse=", "))
       point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
       point$Count <- sum(d2[d3$origins[[x]], ]$Count, na.rm = TRUE)
-      ###character type
-      #if(type=="ANCE"){
         point[,char]=apply(data.frame(d2[d3$origins[[x]], char])[,1:length(char)],2,mean)
-        #point[,char]=foreach(i=1:length(char), .combine=cbind) %do% {
-         # point[,char[i]]=round(mean(data.frame(d2[d3$origins[[x]], char[i]])[,char[i]],na.rm=TRUE),2)
-       # }
-     # }else if(!is.null(type) && type!="ANCE"){
-       # catname=names(data)[grep(type,names(data))]
-       # point[,catname]=foreach(i=1:length(catname), .combine=cbind) %dopar% {
-        #  point[,catname[i]]=round(mean(data.frame(d2[d3$origins[[x]], catname[i]])[,catname[i]],na.rm=TRUE),2)
-       # }
-     # }
       return(point)
     })
     new_d <- do.call(rbind, list)
@@ -184,25 +104,7 @@ MergeawsomeCount=function(data,mult=FALSE,drop=FALSE){
     new_d$SecondSite=paste(as.character(new_d$SITE),"_layer",sep="")
     as.data.frame(new_d)
   }
-  #####mergeCAT for haplo#######
- # mergeCAT=function(data,type){
-    #cat=names(data)[grep("CAT_",names(data))]
-    # name=unique(stri_replace_first_regex(names(data)[grep("CAT",names(data))],"CAT_",""))
-  #  cat=paste("CAT_",type,sep="")
-  #  data2=data[!data[,cat]%in%c("unknown","NA","NON"),]
-  #  yname=sort(unique(data2[,cat]))
-  #  ymax=matrix(0,nrow=nrow(data2),ncol=length(yname))
-  #  colnames(ymax)=yname
-  #  for(i in 1:nrow(ymax)){
-   #   ymax[i,data2[i,cat]]=1
-   # }
-  #  ymax=as.data.frame(ymax)
-  #  colnames(ymax)=paste(type,yname,sep="_")
-  #  ymax$Count=apply(ymax,1,sum)
-   # yresult=cbind(data2[,c("SAMPLE","AGE","SITE","LATITUDE","LONGITUDE","SEX","SPECIES")],ymax)
-   # as.data.frame(yresult)
-  #  Mergetype(yresult,type=type)
- # }
+
 automaticFigures=function(par,path){
   spexa=c(unique(unlist(strsplit(as.character(par[2,2]),"[_]"))))
   sexa=c(unlist(strsplit(as.character(par[1,2]),"[_]"))[1],unlist(strsplit(as.character(par[1,2]),"[_]"))[2])
@@ -225,20 +127,19 @@ automaticFigures=function(par,path){
       data=read.table(files[fi],header=T,sep="\t",stringsAsFactors = F,
                       quote = "", comment.char = "")
     }
-    
+    colnames(data)=toupper(names(data))
   #######plot map#############
-  dat=data[data$Age >=st & data$Age <end & data$Longitude >=LONGITUDEst & data$Longitude <LONGITUDEend & data$Latitude>=LATITUDEst &  data$Latitude <LATITUDEend,]
-  data1=dat[dat$Sex%in%sexa & dat$Species%in%spexa,]
+  dat=data[data$AGE >=st & data$AGE <end & data$LONGITUDE >=LONGITUDEst & data$LONGITUDE <LONGITUDEend & data$LATITUDE>=LATITUDEst &  data$LATITUDE <LATITUDEend,]
+  data1=dat[dat$SEX%in%sexa & dat$SPECIES%in%spexa,]
   data1$Count=dplyr::if_else(apply(data1[,names(data1)[grep("SNP_",names(data1))]],1,sum)>0,1,0)
   data1=data1[data1$Count>0,]
-  if(type=="ReadsCounts"){
+  if(type=="ReadCounts"){
   CountReads=apply(data1 %>% select(starts_with("SNP_")),1,sum)
   data1=cbind(data1,CountReads)
   }
   time1=seq(floor(st/10)*10,ceiling(end/10)*10-windowsize,stepsize)
   time2=seq(floor(st/10)*10+windowsize,ceiling(end/10)*10,stepsize)
   label=paste(time1,time2,sep="-")
-  #label[length(label)]=paste(">",time1[length(label)],sep="")
   sort=paste("Time",seq(1,length(label)),sep="")
   timtab=as.data.frame(cbind(time1,time2,label,sort))
   timtab$time1=as.numeric(timtab$time1);
@@ -249,54 +150,23 @@ automaticFigures=function(par,path){
   if(par[7,2]%in%base){
     gt1=par[7,2]
   }else{
-    gt1=getallename(data1,gsub("mapDATAge-","",gsub(".txt","",files[fi])))
+    gt1=getallename(data1,getsnpname(data1))
   }
 for(n in gt1){
   gtt=paste("SNP_",getsnpname(data1),"_",n,sep="")
-  #gtt=names(data1)[grep(paste("_",gt,sep=""),names(data1))]
-  if(type=="ReadsCounts"){
-    for(i in 1:nrow(timtab)){
-      a=data1[data1$Age>=as.numeric(timtab[i,1]) & data1$Age<as.numeric(timtab[i,2]),c(gtt,"CountReads")]
-      if(is.na(a[1,1])){
-        timtab[i,5]=0
-        timtab[i,6]=0
-        timtab[i,7]=0
-      }else if(!is.na(a[1,1])){
-        sampletime=100
-        outmatrix=as.data.frame(matrix(data="",ncol=as.numeric(sampletime),nrow=nrow(a)))
-        for(s in 1:sampletime){
-          for(j in 1:nrow(a)){
-            if(isTRUE(a[j,2]-a[j,1]>0)){
-              outmatrix[j,s]=as.numeric(sample(c(rep(1,a[j,1]),rep(0,(a[j,2]-a[j,1]))),1))
-            }else if(isTRUE(a[j,2]==a[j,1] & a[j,2]>0)){
-              outmatrix[j,s]=1
-            }
-            else{
-              outmatrix[j,s]=0
-            }
-          }
-        }
-        outmatrix[is.na(outmatrix)]=0
-        timtab[i,5]=mean(apply(apply(outmatrix,1,as.numeric),2,mean))
-        timtab[i,6]=mean(apply(apply(outmatrix,1,as.numeric),2,sd))
-        timtab[i,7]=nrow(a)
-      }
-      
+ if(type=="Genotype"){
+    foreach(i=1:nrow(timtab)) %do% {
+      a=data1[data1$AGE>=as.numeric(timtab[i,1]) & data1$AGE<as.numeric(timtab[i,2]),gtt]
+      timtab[i,5]=ifelse(length(a)==0,0,mean(a,na.rm=TRUE)/2)
+      timtab[i,6]=ifelse(length(a)==0,0,1.96*sqrt(timtab[i,5]*(1-timtab[i,5])/length(a)/2))#sqrt(sd(a, na.rm = TRUE)/length(a))#
+      timtab[i,7]=length(a)
     }
-  }else if(type=="Genotype"){
-    for(i in 1:nrow(timtab)){
-      a=as.numeric(data1[(data1$Age>=as.numeric(timtab[i,1]) & data1$Age<as.numeric(timtab[i,2])),gtt])
-      if(length(a)==0){
-        timtab[i,5]=0
-        timtab[i,6]=0
-        timtab[i,7]=0
-      }else{
-        timtab[i,5]=mean(a, na.rm = TRUE)/2
-        timtab[i,6]=sqrt(timtab[i,5]*(1-timtab[i,5])/length(a))
-        timtab[i,7]=length(a)
-      }
-    }
-  }
+  }else if(type=="ReadCounts"){
+    sampletime=100
+    foreach(i=1:nrow(timtab)) %do% {
+      a=data1[as.numeric(data1$AGE)>=as.numeric(timtab[i,1]) & as.numeric(data1$AGE)<as.numeric(timtab[i,2]),c(gtt,"CountReads")]
+      timtab[i,5:7]=rbind(samtimeSD(a))
+    }}
   timtab[is.na(timtab)] <- 0
   name=getsnpname(data1)
  timtab$label=forcats::fct_inorder(timtab$label)
@@ -314,7 +184,6 @@ for(n in gt1){
   saveWidget(p,file=paste(path,"/",name,"-",st,"-",end,"-",n,"-allefreq.html",sep=""))
 }
    ###getmap data##
-    names(data1)=toupper(names(data1))
     datamap=Merge(data1)
 #########drawmap################
 tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
@@ -344,13 +213,12 @@ saveWidget(map,paste(path,"/",name,"-",st,"-",end,"-map.html",sep=""))
 maxValue <- 1
 if(type=="Genotype"){
   datamap=MergeSNP(data1,snp=getsnpname(data1),gtp="Genotype")
-}else if(type=="ReadsCounts"){
+}else if(type=="ReadCounts"){
   datamap=MergeSNP(data1,snp=getsnpname(data1),gtp="ReadCounts")
 }
 #datamap=datamap[datamap$Count>0,]
 sizes <- sizeNumeric((datamap$Count), baseSize = mean(datamap$Count))
 #########drawmap################
-#tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
 basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
   addTiles(tilesURL) %>%
    fitBounds(min(datamap$LONGITUDE)+1,min(datamap$LATITUDE)+1,max(datamap$LONGITUDE)-1,max(datamap$LATITUDE)-1) %>%
@@ -382,9 +250,8 @@ saveWidget(piemap,paste(path,"/",name,"-",st,"-",end,"-piemap.html",sep=""))
 if(length(grep("ANCE",names(data1)))>0){
   datamap1=Mergetype(data1,type="ANCE")
   sizes <- sizeNumeric((datamap1$Count), baseSize = mean(datamap1$Count))
-  #########drawmap################
-  #tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-  basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
+  
+basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
     addTiles(tilesURL) %>%
     fitBounds(min(datamap1$Longitude)+1,min(datamap1$Latitude)+1,max(datamap1$Longitude)-1,max(datamap1$Latitude)-1) %>%
     addResetMapButton() %>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "topright")
@@ -425,13 +292,10 @@ Merge=function(data){
   d$Count=rep(1,nrow(d))
   charvec=c("SITE","SAMPLE","SPECIES","SEX")
   d2 <- sf::st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
-  d3 <- sf::st_intersection(d2)
-  list <- parallel::mclapply(1:length(d3$origins), function(x) {
+  d3 <- sf::st_intersection(d2)#parallel::mc
+  list <- lapply(1:length(d3$origins), function(x) {
     point <- d3[x, ]
     point[,charvec]=apply((data.frame(d2[d3$origins[[x]], charvec])[,charvec]),2,function(x) paste(x, collapse=", "))
-    #point[,charvec]=foreach(i=1:length(charvec), .combine=cbind) %dopar% {
-      #point[,charvec[i]]=stringr::str_flatten(data.frame(d2[d3$origins[[x]], charvec[i]])[,charvec[i]], collapse = ", ")
-    #}
     point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
     point$Count <- sum(d2[d3$origins[[x]], ]$Count, na.rm = TRUE)
     return(point)
@@ -443,30 +307,24 @@ Merge=function(data){
   new_d$SecondSite=paste(as.character(new_d$SITE),"_layer",sep="")
   as.data.frame(new_d)
 }
-meansampling=function(xx,tt,sampletime=100){
-  tab=cbind(xx,as.numeric(tt))
-  freq=""
-  if(nrow(tab)==0){
-    freq=0
-  }else if(nrow(tab)>0){
-    outmatrix=matrix("",ncol=sampletime,nrow=nrow(tab))
-    for(s in 1:sampletime){
-      for(j in 1:nrow(tab)){
-        if((tab[j,2]-tab[j,1])>0 & tab[j,2]>1){
-          outmatrix[j,s]=sample(c(rep(1,tab[j,1]),rep(0,(tab[j,2]-tab[j,1]))),1)
-        }else if(tab[j,2]==tab[j,1] & tab[j,2]>0){
-          outmatrix[j,s]=1
-        }else if((tab[j,2]-tab[j,1])>0 & tab[j,2]==1){
-          outmatrix[j,s]=0
-        }else{
-          outmatrix[j,s]=0
-        }
-      }
+samtime=function(indata){
+  sampletime=100
+  for(i in 1:nrow(indata)){
+    if(indata[i,2]>=1 & indata[i,1]>=1  &  nrow(indata)>0){
+      indata[i,1]=mean(sample(c(rep(1,indata[i,1]),rep(0,indata[i,2])),sampletime,replace =TRUE),na.rm = T)
+      indata[i,2]=1-indata[i,1]
+      }else if(indata[i,2]==0 &  indata[i,1]>0){
+      indata[i,1]=1
+      indata[i,2]=0
+    }else if(indata[i,2]>0 &  indata[i,1]==0){
+      indata[i,1]=0
+      indata[i,2]=1
+    }else{
+      indata[i,1]=0
+      indata[i,2]=0
     }
   }
-  outmatrix[is.na(outmatrix)]=0
-  freq=mean(apply(apply(outmatrix,1,as.numeric),2,mean))
-  as.numeric(freq)
+  apply(as.data.frame(indata),2,mean)
 }
 MergeSNP=function(data,snp=NULL,gtp=NULL,drop=FALSE){
   chc=c("SITE","SAMPLE","SPECIES","SEX")
@@ -476,52 +334,28 @@ MergeSNP=function(data,snp=NULL,gtp=NULL,drop=FALSE){
   d$ReadCount=apply(d %>% select(matches(snp)),1,sum)
   d2 <- sf::st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
   d3 <- sf::st_intersection(d2)
-  list <- parallel::mclapply(1:length(d3$origins), function(x) {
+  list <- lapply(1:length(d3$origins), function(x) {
     point <- d3[x, ]
     point[,chc]=apply((data.frame(d2[d3$origins[[x]], chc])[,chc]),2,function(x) paste(x, collapse=", "))
-    #point[,chc]=foreach(i=1:length(chc), .combine=cbind) %dopar% {
-      #point[,chc[i]]=stringr::str_flatten(data.frame(d2[d3$origins[[x]], chc[i]])[,chc[i]], collapse = ", ")
-   # }
     point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
     point$Count <- sum(d2[d3$origins[[x]], ]$Count, na.rm = TRUE)
     a=names(d)[grep(snp,names(d))]
     if(gtp=="Genotype"){
-      #point[,a]=foreach(i=1:length(a), .combine=cbind) %dopar% {
-        #point[,a[i]]=round(mean(data.frame(d2[d3$origins[[x]], a[i]])[,a[i]],na.rm=TRUE),2)
-     # }
       point[,a]=apply(data.frame(d2[d3$origins[[x]], a])[,1:2],2,mean)
       }else if(gtp=="ReadCounts"){
-        point[,a]=foreach(i=1:length(a), .combine=cbind) %do% {
-          point[,a[i]]= round(meansampling(matrix(unlist(d2[d3$origins[[x]],a[i]]),ncol=3,byrow=FALSE)[,1],d2[d3$origins[[x]], ]$ReadCount),2)
-        }}
+        point[,a]=samtime(data.frame(d2[d3$origins[[x]],a])[,1:2])
+        }
     return(point)
   })
   new_d <- do.call(rbind, list)
   new_d$LONGITUDE <- sf::st_coordinates(new_d)[, "X"]
   new_d$LATITUDE <- sf::st_coordinates(new_d)[, "Y"]
-  
   sf::st_geometry(new_d) <- NULL
   new_d$SecondSite=paste(as.character(new_d$SITE),"_lay",sep="")
   new_d=as.data.frame(new_d)
-  new_d[,"NON"]=min(1-apply(new_d %>% select(matches(snp)),1,sum),0)
+  new_d[,"NON"]=ifelse(gtp=="Genotype",2-apply(new_d %>% select(matches(snp)),1,sum),1-apply(new_d %>% select(matches(snp)),1,sum))
   as.data.frame(new_d)
 }
-#mergeCAT=function(data,type){
- # cat=paste("CAT_",type,sep="")
- #  data2=data[!data[,cat]%in%c("unknown","NA","NON"),]#data2=data[data[,cat] !="unknown",]
- # yname=sort(unique(data2[,cat]))
- # ymax=matrix(0,nrow=nrow(data2),ncol=length(yname))
- # colnames(ymax)=yname
- # for(i in 1:nrow(ymax)){
-  #  ymax[i,data2[i,cat]]=1
- # }
- # ymax=as.data.frame(ymax)
- # colnames(ymax)=paste(type,yname,sep="_")
- # ymax$Count=apply(ymax,1,sum)
- # yresult=cbind(data2[,c("SAMPLE","AGE","SITE","LATITUDE","LONGITUDE","SEX","SPECIES")],ymax)
- # as.data.frame(yresult)
- # Mergetype(yresult,type=type)
-#}
 ###pca plot
 drawpca=function(data,sex,species,st,end,pca,lat1,lat2,log1,log2,pc1,pc2){
   st=as.numeric(st);end=as.numeric(end)
@@ -541,6 +375,7 @@ drawpca=function(data,sex,species,st,end,pca,lat1,lat2,log1,log2,pc1,pc2){
 
 #######plot grid in the map
 gridmap=function(data,gra,type=NULL,drop=drop){
+  chc=c("SAMPLE","SPECIES","SEX")
   gra=as.numeric(gra)
   data$LATITUDE=as.numeric(data$LATITUDE)
   data$LONGITUDE=as.numeric(data$LONGITUDE)
@@ -558,7 +393,8 @@ gridmap=function(data,gra,type=NULL,drop=drop){
   latlog=expand.grid(lat=latgr,log=loggr)
   if(type=="SNP" & length(getsnpname(data))>0 & length(grep("ANCE",names(data)))==0){
     latlogtab=cbind(latlog$lat+(gra/2),latlog$log+(gra/2),0,0,0,0,NA,NA,NA,NA)
-    colnames(latlogtab)=c("LATITUDE","LONGITUDE","Count",names(data)[grep("SNP",names(data))],"NON","SAMPLE","AGE","SEX","SPECIES")
+    colnames(latlogtab)=c("LATITUDE","LONGITUDE","Count",names(data)[grep("SNP",names(data))],"NON","SAMPLE","SPECIES","SEX","AGE")
+    #latlogtab=apply(latlogtab,1,function(i){
     for(i in 1:nrow(latlogtab)){
       ranks<-data[data$LONGITUDE>=latlog[i,2] & data$LONGITUDE<(latlog[i,2]+gra) & 
                     data$LATITUDE>=latlog[i,1] & data$LATITUDE<(latlog[i,1]+gra),]
@@ -569,12 +405,10 @@ gridmap=function(data,gra,type=NULL,drop=drop){
         if(any(names(ranks)%in%"NON")){
           latlogtab[i,"NON"]=as.numeric(round(mean(ranks[,"NON"],na.rm=T),2))
         }
-        latlogtab[i,"SAMPLE"] =stringr::str_flatten(ranks$SAMPLE, collapse = ", ")
-        latlogtab[i,"AGE"] =as.numeric(round(mean(ranks[,"AGE"],na.rm=T),2))#stringr::str_flatten(ranks$Age, collapse = ", ")
-        latlogtab[i,"SEX"] =stringr::str_flatten(ranks$SEX, collapse = ", ")
-        latlogtab[i,"SPECIES"] =stringr::str_flatten(ranks$SPECIES, collapse = ", ")
+        latlogtab[i,chc]=apply(ranks[,chc],2,function(x) paste(x, collapse=", "))
+       latlogtab[i,"AGE"] =as.numeric(round(mean(ranks[,"AGE"],na.rm=T),2))#stringr::str_flatten(ranks$Age, collapse = ", ")
       }        
-    }
+    }#)
     
     latlogtab=data.frame(latlogtab)
     latlogtab$SITE=paste("Site",seq(1,nrow(latlogtab)),sep="")
@@ -599,14 +433,10 @@ gridmap=function(data,gra,type=NULL,drop=drop){
                     data$LATITUDE>=latlog[i,1] & data$LATITUDE<(latlog[i,1]+gra),]
       if(nrow(ranks)>0){
         latlogtab[i,"Count"]=sum(ranks$Count,na.rm=T)
-        latlogtab[i,"SAMPLE"] =stringr::str_flatten(ranks$SAMPLE, collapse = ", ")
+        latlogtab[i,chc]=apply(ranks[,chc],2,function(x) paste(x, collapse=", "))
         latlogtab[i,"AGE"] =mean(ranks$AGE, na.rm=T)
-        latlogtab[i,"SEX"] =stringr::str_flatten(ranks$SEX, collapse = ", ")
-        latlogtab[i,"SPECIES"] =stringr::str_flatten(ranks$SPECIES, collapse = ", ")
-        for(j in 1:length(ancname)){
-          latlogtab[i,ancname[j]]=as.numeric(round(mean(ranks[,ancname[j]],na.rm=T),2))
-        }
-      }        
+        latlogtab[i,ancname]=apply(ranks[,ancname],2,function(x) round(mean(x),2))
+        }        
     }
     latlogtab=as.data.frame(latlogtab,stringsAsFactors=FALSE)
     latlogtab$SITE=paste("Site",seq(1,nrow(latlogtab)),sep="")
@@ -623,8 +453,12 @@ gridmap=function(data,gra,type=NULL,drop=drop){
 gridplot=function(data,st,end,grindsize,type,path){
   st=floor(st/10)*10
   end=ceiling(end/10)*10
+  if(end-st>grindsize){
   tim1=seq(st,end-grindsize,grindsize)
   tim2=seq(st+grindsize,end,grindsize)
+  }else{
+  tim1=st;tim2=end
+  }
   timtab=cbind(tim1,tim2)
   data=data[data$Count>0,]
   #####draw pie map
@@ -647,12 +481,12 @@ gridplot=function(data,st,end,grindsize,type,path){
       piemap=basemap %>%
         addMinicharts(
           datamap$LONGITUDE, datamap$LATITUDE,
-          chartdata = cbind(datamap %>% select(starts_with(type))),
+          chartdata = cbind(datamap %>% select(starts_with(type)),datamap[,"NON"]),
           maxValues = maxValue,
           type ="pie",
           colorPalette = coltyp,
           popup = popupArgs(
-            labels = names(datamap)[grep(type,names(datamap))] ,
+            labels = c(grep(type,names(datamap),value=TRUE),"NA") ,
             html = paste0(
               "<div>","<h6>","<br>",datamap$SAMPLE,"<h6>",
               "<div>","<h7>","Sex: ",datamap$SEX,"<br>",
@@ -674,7 +508,34 @@ gridplot=function(data,st,end,grindsize,type,path){
     }
   }
 }
-##freq plot
+###freqplot
+samtimeSD=function(indata){
+  if(nrow(indata)==0){
+    matrix(0,ncol=3)
+  }else if(!is.null(indata[1,1])){
+    list=lapply(1:nrow(indata),function(i){
+      point=indata[i,]
+      #point[,"mean"]="";point[i,"sd"]=""
+      if(point[2]>=1 & point[1]>=1  &  nrow(indata)>0){
+        s=""
+        #for(j in 1:100){s[j]=sample(c(rep(1,point[1]),rep(0,point[2]-point[1])),1)}
+        s=sample(c(rep(1,point[1]),rep(0,point[2]-point[1])),100,replace = T)
+        point$mean=mean(as.numeric(s),na.rm = T)
+        point$sd=sd(as.numeric(s),na.rm = T)
+      }else if(indata[i,2]==0 &  indata[i,1]>0){
+        point$mean=1
+        point$sd=0
+      }else{
+        point$mean=0
+        point$sd=0
+      }
+      return(point)
+    })
+    indata1=do.call(rbind,list)
+    matrix(c(apply(indata1[,3:4],2,mean),nrow(indata)),nrow=1)
+  }
+}
+
 AllePlot=function(dat,sex,species,gt,windowsize,stepsize,st,end,snp,lat1,lat2,long1,long2,ymin,ymax,sampletime,gtp){
   d=dat[,c("SAMPLE","AGE","LATITUDE","LONGITUDE","SEX","SITE","SPECIES",names(dat)[grep(snp,names(dat))])]
   d$count=dplyr::if_else(rowSums(d[,names(d)[grep(snp,names(d))]])>0,1,0)
@@ -687,7 +548,6 @@ AllePlot=function(dat,sex,species,gt,windowsize,stepsize,st,end,snp,lat1,lat2,lo
   time1=seq(floor(st/100)*100,ceiling(end/100)*100-windowsize,stepsize)
   time2=seq(floor(st/100)*100+windowsize,ceiling(end/100)*100,stepsize)
   label=paste(time1,time2,sep="-")
-  #label[length(label)]=paste(">",time1[length(label)],sep="")
   sort=factor(paste("Time",seq(01,length(label)),sep=""))
   timtab=NA
   timtab=as.data.frame(cbind(time1,time2,label,sort))
@@ -696,7 +556,6 @@ AllePlot=function(dat,sex,species,gt,windowsize,stepsize,st,end,snp,lat1,lat2,lo
   gtt=paste("SNP_",snp,"_",gt,sep="")
   if(gtp=="Genotype"){
     foreach(i=1:nrow(timtab)) %do% {
-      #for(i in 1:nrow(timtab)){
       a=data[data$AGE>=as.numeric(timtab[i,1]) & data$AGE<as.numeric(timtab[i,2]),gtt]
       timtab[i,5]=ifelse(length(a)==0,0,mean(a,na.rm=TRUE)/2)
       timtab[i,6]=ifelse(length(a)==0,0,1.96*sqrt(timtab[i,5]*(1-timtab[i,5])/length(a)/2))#sqrt(sd(a, na.rm = TRUE)/length(a))#
@@ -705,32 +564,9 @@ AllePlot=function(dat,sex,species,gt,windowsize,stepsize,st,end,snp,lat1,lat2,lo
   }else if(gtp=="ReadCounts"){
     sampletime=as.numeric(sampletime)
     foreach(i=1:nrow(timtab)) %do% {
-      #for(i in 1:nrow(timtab)){
       a=data[as.numeric(data$AGE)>=as.numeric(timtab[i,1]) & as.numeric(data$AGE)<as.numeric(timtab[i,2]),c(gtt,"CountReads")]
-      if(is.null(a[1,1])){
-        timtab[i,5]=0
-        timtab[i,6]=0
-        timtab[i,7]=0
-      }else if(!is.null(a[1,1])){
-        outmatrix=as.data.frame(matrix(data="",ncol=(sampletime),nrow=as.numeric(dim(a)[1])))
-        for(s in 1:sampletime){
-          for(j in 1:nrow(a)){
-            if(isTRUE(a[j,2]>0)){
-              outmatrix[j,s]=sample(c(rep(1,a[j,1]),rep(0,(a[j,2]-a[j,1]))),1)
-            }else if(isTRUE(a[j,2]>0)){
-              outmatrix[j,s]=1
-            }else{
-              outmatrix[j,s]=0
-            }
-          }
-        }
-        outmatrix[is.na(outmatrix)]=0
-        timtab[i,5]=mean(apply(apply(outmatrix,1,as.numeric),2,mean))
-        timtab[i,6]=mean(apply(apply(outmatrix,1,as.numeric),2,sd))
-        timtab[i,7]=nrow(a)
-      }
-    }
-  }
+      timtab[i,5:7]=rbind(samtimeSD(a))
+    }}
   #timtab[is.na(timtab)] <- 0
   timtab$label=forcats::fct_inorder(timtab$label)
   plot_ly(timtab,x=~label,y=~mean,type="scatter",name="frequency",mode = 'lines+markers',error_y=~list(array=sd,color="#000000"),
@@ -771,9 +607,10 @@ findLocations <- function(shape, location_coordinates, location_id_colname){
     return(selected_loc_id)
   }
 }
+##mergeMT
 catsorting=function(data,type){
   sub=as.data.frame(table(data))
-  sub2=matrix(as.numeric(sum(sub[,2]))/length(data),ncol=nrow(sub))
+  sub2=matrix(as.numeric((sub[,2])),ncol=nrow(sub))
   colnames(sub2)=paste(type,"_",sub[,1],sep="")
   data.frame(sub2)
 }
@@ -786,7 +623,7 @@ MergeMT=function(data,type=NULL,drop=FALSE){
   d$Count=rep(1,nrow(d))
   d2 <- sf::st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
   d3 <- sf::st_intersection(d2)
-  list <- parallel::mclapply(1:length(d3$origins), function(x) {
+  list <- lapply(1:length(d3$origins), function(x) {
     point <- d3[x, ]
     point[,chc]=apply((data.frame(d2[d3$origins[[x]], chc])[,chc]),2,function(x) paste(x, collapse=", "))
     point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
@@ -805,4 +642,64 @@ MergeMT=function(data,type=NULL,drop=FALSE){
   new_d[,cat]=NULL
   new_d$SecondSite=paste(as.character(new_d$SITE),"_layer",sep="")
   as.data.frame(new_d)
+}
+##merge multiple snps
+samtimeFr=function(indata){
+  list=lapply(1:nrow(indata),function(i){
+    point=indata[i,]
+    point[,1:2]=if(point[2]>=1 & point[1]>=1){
+      cbind(mean(sample(c(rep(1,point[1]),rep(0,point[2])),100,replace = T)),1-mean(sample(c(rep(1,point[1]),rep(0,point[2])),100,replace = T)))
+      #s=""
+      #for(j in 1:10){s[j]=sample(c(rep(1,point[1]),rep(0,point[2])),1)}
+     # mean(as.numeric(s),na.rm = T)
+    }else if(point[2]==0 &  point[1]>0){
+      cbind(1,0)
+    }else if(point[2]>0 &  point[1]==0){
+      cbind(0,1)
+    }else{
+      cbind(0,0)
+    }
+  })
+  indata=do.call(rbind,list)
+  as.data.frame(indata)
+}
+
+MergeawsomeCount=function(data,mult=FALSE,snplist=NULL,drop=FALSE){
+  charvec=c("SITE","SAMPLE","SPECIES","SEX")
+  snpname=sort(unique(stringi::stri_replace_first_regex(stringi::stri_replace_last_regex(grep("SNP_",snplist,value = T),pattern="_[A,C,G,T,D]",replacement = ""),"SNP_","")))
+  snpnamefu=names(data %>% select(matches(snpname)))
+  data=data[apply(data[,snpnamefu],1,sum)>0,]
+  d=data[,c(charvec,snpnamefu,"LATITUDE","LONGITUDE","AGE")]
+  #snpname=getsnpname(data)
+  if(length(snpname)>0){
+    d$Counts=if_else(rowSums(d %>% select(matches(snpname)))>0,1,0)
+    d=d[d$Counts>0,]
+    #lapply parallel::mc
+    list=lapply(1:length(snpname),function(i){
+      point=d[,grep(snpname[i],names(d),value = T)]
+      point[,grep(snpname[i],names(d),value = T)]=samtimeFr(point)
+      return(point)
+    })
+    d[,snpnamefu]=do.call(cbind,list)
+    #loop
+    d2 <- st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
+    d3 <- st_intersection(d2)
+      a=grep("SNP",names(d),value = T)
+      list <- lapply(1:length(d3$origins), function(x) {
+        point <- d3[x, ]
+        point[,charvec]=apply((data.frame(d2[d3$origins[[x]], charvec])[,charvec]),2,function(x) paste(x, collapse=", "))
+        point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
+        point$Counts <- sum(d2[d3$origins[[x]], ]$Counts, na.rm = TRUE)
+        point[,a]=apply(data.frame(d2[d3$origins[[x]], a])[,1:length(a)],2,mean)
+        return(point)
+      })
+      new_d <- do.call(rbind, list)
+      new_d$LONGITUDE <- st_coordinates(new_d)[, "X"]
+      new_d$LATITUDE <- st_coordinates(new_d)[, "Y"]
+      st_geometry(new_d) <- NULL
+      as.data.frame(new_d)
+      new_d$AGE=as.numeric(new_d$AGE)
+      filter(new_d)
+      as.data.frame(new_d)
+  }
 }

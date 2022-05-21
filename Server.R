@@ -56,13 +56,13 @@ server <- function(input, output,session)({
                 label = "Select a longitude range",
                 min = taxonomy_table()$LONGITUDE %>%
                   as.numeric() %>%
-                  round(2)%>%
+                  #round(2)%>%
                   min(na.rm = TRUE),
                 max = taxonomy_table()$LONGITUDE %>%
                   as.numeric %>%
-                  round(2)%>%
+                  #round(2)%>%
                   max(na.rm = TRUE),
-                step = 0.1,
+                step = 0.01,
                 value = range(taxonomy_table()$LONGITUDE))
   })
   output$mapoutlat <- renderUI({
@@ -70,13 +70,13 @@ server <- function(input, output,session)({
                 label = "Select a latitude range",
                 min = taxonomy_table()$LATITUDE %>%
                   as.numeric() %>%
-                  round(2)%>%
+                  #round(2)%>%
                   min(na.rm = TRUE),
                 max = taxonomy_table()$LATITUDE %>%
                   as.numeric %>%
-                  round(2)%>%
+                  #round(2)%>%
                   max(na.rm = TRUE),
-                step = 1,
+                step = 0.01,
                 value = range(taxonomy_table()$LATITUDE))
   })
   
@@ -86,8 +86,10 @@ server <- function(input, output,session)({
   # Reactive expression for the data subsetted to what the user selected
   filteredData <- reactive({
     req(input$mapage)
+	if(as.numeric(input$mapage[2])-as.numeric(input$mapage[1])>0 & as.numeric(input$maplat[2])-as.numeric(input$maplat[1]) & as.numeric(input$maplog[2])-as.numeric(input$maplog[1])>0){
     Merge(taxonomy_table()[taxonomy_table()$SEX%in%input$mapsx & taxonomy_table()$SPECIES%in%input$mapsp & taxonomy_table()$AGE >= as.numeric(input$mapage[1]) & taxonomy_table()$AGE < as.numeric(input$mapage[2])
                                  & taxonomy_table()$LATITUDE>=as.numeric(input$maplat[1]) & taxonomy_table()$LATITUDE<=as.numeric(input$maplat[2]) & taxonomy_table()$LONGITUDE>=as.numeric(input$maplog[1]) & taxonomy_table()$LONGITUDE<=as.numeric(input$maplog[2]),])
+								 }else{NULL}
   })
   output$mapoutlab <- renderUI({
     req(filteredData())
@@ -250,13 +252,13 @@ server <- function(input, output,session)({
                 label = "Select a longitude range",
                 min = taxonomy_table()$LONGITUDE %>%
                   as.numeric() %>%
-                  round(2) %>%
+                  #round(2) %>%
                   min(na.rm = TRUE),
                 max = taxonomy_table()$LONGITUDE %>%
                   as.numeric %>%
                   #round(2) %>%
                   max(na.rm = TRUE),
-                step = 0.1,
+                step = 0.01,
                 value = range(taxonomy_table()$LONGITUDE))
   })
   output$pieoutlat <- renderUI({
@@ -265,13 +267,13 @@ server <- function(input, output,session)({
                 label = "Select a latitude range",
                 min = taxonomy_table()$LATITUDE %>%
                   as.numeric() %>%
-                  round(2) %>%
+                 # round(2) %>%
                   min(na.rm = TRUE),
                 max = taxonomy_table()$LATITUDE %>%
                   as.numeric %>%
-                  round(2) %>%
+                 # round(2) %>%
                   max(na.rm = TRUE),
-                step = 1,
+                step = 0.01,
                 value = range(taxonomy_table()$LATITUDE))
   })
   output$pieout1 <- renderUI({
@@ -286,13 +288,13 @@ server <- function(input, output,session)({
   ##active data
   filteredData1 <- reactive({
     req(input$pieage,taxonomy_table())
-    if(length(select(taxonomy_table(),starts_with("SNP_")))>0 & input$pietype=="ReadCounts"){
+    if(length(select(taxonomy_table(),starts_with("SNP_")))>0 & input$pietype=="ReadCounts" & as.numeric(input$pieage[2])-as.numeric(input$pieage[1])>0 & input$pielog[2]-input$pielog[1]>0 & input$pielog[2]-input$pielog[1]>0){
       MergeSNP(taxonomy_table()[taxonomy_table()$SEX%in%input$piesx & taxonomy_table()$SPECIES%in%input$piesp & taxonomy_table()$AGE >= as.numeric(input$pieage[1]) & taxonomy_table()$AGE < as.numeric(input$pieage[2]) &
                                       taxonomy_table()$LATITUDE>=input$pielat[1] & taxonomy_table()$LATITUDE<=input$pielat[2] & taxonomy_table()$LONGITUDE>=input$pielog[1] & taxonomy_table()$LONGITUDE<=input$pielog[2],],snp=input$piesnp,gtp="ReadCounts")
-    } else if(length(select(taxonomy_table(),starts_with("SNP_")))>0 & input$pietype=="Genotype"){
+    } else if(length(select(taxonomy_table(),starts_with("SNP_")))>0 & input$pietype=="Genotype" & as.numeric(input$pieage[2])-as.numeric(input$pieage[1])>0 & input$pielog[2]-input$pielog[1]>0 & input$pielog[2]-input$pielog[1]>0){
 	MergeSNP(taxonomy_table()[taxonomy_table()$SEX%in%input$piesx & taxonomy_table()$SPECIES%in%input$piesp & taxonomy_table()$AGE >= as.numeric(input$pieage[1]) & taxonomy_table()$AGE < as.numeric(input$pieage[2]) &
                                       taxonomy_table()$LATITUDE>=input$pielat[1] & taxonomy_table()$LATITUDE<=input$pielat[2] & taxonomy_table()$LONGITUDE>=input$pielog[1] & taxonomy_table()$LONGITUDE<=input$pielog[2],],snp=input$piesnp,gtp="Genotype")
-     }
+     }else{NULL}
   })
   ############labels for shown#####
   output$pieoutlab <- renderUI({
@@ -338,12 +340,12 @@ server <- function(input, output,session)({
         clearMarkers() %>% clearControls() %>%
         updateMinicharts(
           layerId = filteredData1()$SITE,
-          chartdata =  cbind(filteredData1() %>% select(matches(input$piesnp)),filteredData1()$NON),#cbind(filteredData1()$A,filteredData1()$D),
+          chartdata =  cbind(filteredData1() %>% select(matches(input$piesnp)),filteredData1()["NON"]),#cbind(filteredData1()$A,filteredData1()$D),
           maxValues = maxValue,width=15,height=15,#legend=TRUE,
           type =input$type,showLabels = input$labels,
           colorPalette = brewer.pal(11, input$colors1)[c(2,9,4,5)],
           popup = popupArgs(
-            labels = c(getallename(filteredData1(),input$piesnp),"NON"),#c("A", "D"),
+            labels = c(getallename(filteredData1(),input$piesnp),"NA"),#c("A", "D"),
             html = labelpop(filteredData1(),input$pielab
             )
           )
@@ -353,12 +355,12 @@ server <- function(input, output,session)({
         clearMarkers() %>% clearControls() %>%
         updateMinicharts(
           layerId = filteredData1()$SITE,
-          chartdata =  cbind(filteredData1() %>% select(matches(input$piesnp)),filteredData1()$NON),#cbind(filteredData1()$A,filteredData1()$D),
+          chartdata =  cbind(filteredData1() %>% select(matches(input$piesnp)),filteredData1()["NON"]),#cbind(filteredData1()$A,filteredData1()$D),
           maxValues = maxValue,
           type =input$type,showLabels = input$labels,
           colorPalette = brewer.pal(11, input$colors1)[c(2,9,4,5)],
           popup = popupArgs(
-            labels = c(getallename(filteredData1(),input$piesnp),"NON"),#c("A", "D"),
+            labels = c(getallename(filteredData1(),input$piesnp),"NA"),
             html = labelpop(filteredData1(),input$pielab
             )
           ),
@@ -367,15 +369,15 @@ server <- function(input, output,session)({
                             values = filteredData1()$Count,shape="circle",orientation="horizontal",breaks=5)
     } else if(length(select(taxonomy_table(),starts_with("SNP_")))>0){ 
       leafletProxy("pie",data=filteredData1()) %>%
-        clearMarkers() %>% #clearControls() %>%
+        clearMarkers() %>% 
         updateMinicharts(
           layerId = filteredData1()$SITE,
-          chartdata =  cbind(filteredData1() %>% select(matches(input$piesnp)),filteredData1()$NON),#cbind(filteredData1()$A,filteredData1()$D),
+          chartdata =  cbind(filteredData1() %>% select(matches(input$piesnp)),filteredData1()["NA"]),
           maxValues = maxValue,
           type =input$type,showLabels = input$labels,
           colorPalette = brewer.pal(11, input$colors1)[c(2,9,4,5)],
           popup = popupArgs(
-            labels = c(getallename(filteredData1(),input$piesnp),"NON"),#c("A", "D"),
+            labels = c(getallename(filteredData1(),input$piesnp),"NA"),
             html = labelpop(filteredData1(),input$pielab
             )
           ),
@@ -387,7 +389,8 @@ server <- function(input, output,session)({
   griddata<- reactive({
     req(filteredData1())
     req(input$Gridpie)
-    gridmap(filteredData1(),input$Gridpie,type="SNP")
+	if(!is.null(filteredData1())){
+    gridmap(filteredData1(),input$Gridpie,type="SNP")}else{NULL}
   })
   observe({
     if(input$Gridpie>0){
@@ -399,7 +402,7 @@ server <- function(input, output,session)({
 					  type="pie",
                       colorPalette = brewer.pal(11, input$colors1)[c(2,9,4,5)],
                       popup = popupArgs(
-                        labels = c(getallename(griddata(),input$piesnp),"NON"),#c("A", "D"),
+                        labels = c(getallename(griddata(),input$piesnp),"NA"),#c("A", "D"),
                         html = labelpop(griddata(),input$pielab
                         )),
                       width = 5*sqrt(as.numeric(griddata()$Count)))%>%
@@ -567,7 +570,7 @@ server <- function(input, output,session)({
                   as.numeric %>%
                   max(na.rm = TRUE),
                 step = 10,
-                value = range(taxonomy_table()$AGE))
+                value = range(taxonomy_table()$AGE),dragRange=TRUE)
   })
   output$allsnp <- renderUI({
     selectInput("allsnp",
@@ -580,38 +583,39 @@ server <- function(input, output,session)({
   req(input$allsnp)
   if(!is.null(input$allsnp)){
     selectInput("allall",
-                label = "Select allele",
+                label = "Select Allele",
                 choices = c(Choose='',getallename(taxonomy_table(),input$allsnp)),
 				selectize=FALSE,#getallename(taxonomy_table(),input$allsnp)[1],
                 selected='')
 				}
   })
+
   output$alloutlog <- renderUI({
     sliderInput("alllog",
                 label = "Select a longitude range",
                 min = taxonomy_table()$LONGITUDE %>%
                   as.numeric() %>% 
-                  round(2) %>%
+                  #round(2) %>%
                   min(na.rm = TRUE),
                 max = taxonomy_table()$LONGITUDE %>%
                   as.numeric %>% 
-                  round(2) %>%
+                 # round(2) %>%
                   max(na.rm = TRUE),
-                step = 0.1,
-                value = range(taxonomy_table()$LONGITUDE))
+                step = 0.01,
+                value = range(taxonomy_table()$LONGITUDE),dragRange=TRUE)
   })
   output$alloutlat <- renderUI({
     sliderInput("alllat",
                 label = "Select a latitude range",
                 min = taxonomy_table()$LATITUDE %>%
                   as.numeric() %>% 
-                  round(2) %>%
+                  #round(2) %>%
                   min(na.rm = TRUE),
                 max = taxonomy_table()$LATITUDE %>%
                   as.numeric %>%
-                  round(2) %>%
+                  #round(2) %>%
                   max(na.rm = TRUE),
-                step = 1,
+                step = 0.01,
                 value = range(taxonomy_table()$LATITUDE))
   })
   output$alloutymin <- renderUI({
@@ -636,18 +640,19 @@ server <- function(input, output,session)({
                  max = 10000,value=100)
 	}
   })
-  
+
   output$alle <- renderPlotly({
     req(input$alleage)
 	req(input$allsnp)
 	req(input$allall)
-    if(length(select(taxonomy_table(),starts_with("SNP_")))>0 & input$alltype=="ReadCounts"){
+    if(length(select(taxonomy_table(),starts_with("SNP_")))>0 & input$alltype=="ReadCounts" & input$allall%in%getallename(taxonomy_table(),input$allsnp) & input$WinSize>input$StepSize & input$StepSize>0 & input$alleage[2]-input$alleage[1]>0){
 	req(input$allsampling)
       AllePlot(taxonomy_table(),as.character(input$allsx),as.character(input$allsp),input$allall,as.numeric(input$WinSize),as.numeric(input$StepSize),as.numeric(input$alleage[1]),as.numeric(input$alleage[2]),input$allsnp,
                input$alllat[1],input$alllat[2],input$alllog[1],input$alllog[2],input$allymin,input$allymax,input$allsampling,gtp=input$alltype)
-    }else if(input$alltype=="Genotype" & length(select(taxonomy_table(),starts_with("SNP_")))>0)
+    }else if(input$alltype=="Genotype" & length(select(taxonomy_table(),starts_with("SNP_")))>0 & input$allall%in%getallename(taxonomy_table(),input$allsnp) & input$WinSize>input$StepSize & input$StepSize>0 & input$alleage[2]-input$alleage[1]>0){
 	 AllePlot(taxonomy_table(),as.character(input$allsx),as.character(input$allsp),input$allall,as.numeric(input$WinSize),as.numeric(input$StepSize),as.numeric(input$alleage[1]),as.numeric(input$alleage[2]),input$allsnp,
                input$alllat[1],input$alllat[2],input$alllog[1],input$alllog[2],input$allymin,input$allymax,gtp=input$alltype)
+}else if(!input$allall%in%getallename(taxonomy_table(),input$allsnp)){NULL}
 
   })
   output$errtraj <- renderText({
@@ -667,25 +672,25 @@ server <- function(input, output,session)({
     req(input$alleage)
 	req(input$allsnp)
 	req(input$allall)
-    if(length(select(taxonomy_table(),starts_with("SNP_")))>0 & length(input$allall)==1){
+    if(length(select(taxonomy_table(),starts_with("SNP_")))>0 & length(input$allall)==1 & input$allall%in%getallename(taxonomy_table(),input$allsnp)){
       allname=paste("SNP_",input$allsnp,"_",input$allall,sep="")
 	   addreadCounts(taxonomy_table()[taxonomy_table()$SEX%in%input$allsx & taxonomy_table()$SPECIES%in%input$allsp & taxonomy_table()$AGE >= as.numeric(input$alleage[1]) & taxonomy_table()$AGE < as.numeric(input$alleage[2]) & taxonomy_table()[,allname]>0 &
                           taxonomy_table()$LATITUDE >= as.numeric(input$alllat[1]) & taxonomy_table()$LATITUDE <= input$alllat[2] & taxonomy_table()$LONGITUDE>=as.numeric(input$alllog[1]) & taxonomy_table()$LONGITUDE<=as.numeric(input$alllog[2]),],input$allsnp)
-    }
+    }else{NULL}
   })
 
   ##########draw map
   output$deallele <- renderLeaflet({
-    if(length(select(taxonomy_table(),starts_with("SNP_")))>0){
+  req(input$allsnp,input$allall)
+    if(length(select(taxonomy_table(),starts_with("SNP_")))>0 & input$allall%in%getallename(taxonomy_table(),input$allsnp)){
       req(filteredData3())
       leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 1, maxZoom = 5, dragging = T)) %>%
         addTiles(tilesURL) %>%#addControl(titletraj, position = "topleft") %>%
         fitBounds(min(taxonomy_table()$LONGITUDE)-0.3,min(taxonomy_table()$LATITUDE)-0.3,max(taxonomy_table()$LONGITUDE)+0.3,max(taxonomy_table()$LATITUDE)+0.3) %>%
         addCircleMarkers(filteredData3()$LONGITUDE, filteredData3()$LATITUDE,radius=filteredData3()[,paste("SNP_",input$allsnp,"_",input$allall,sep="")]) %>% addResetMapButton()%>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "topright")
-    }  
+    }else if(!input$allall%in%getallename(taxonomy_table(),input$allsnp)){NULL}
   })
-  observe({ 
-    if(length(select(taxonomy_table(),starts_with("SNP_")))>0){
+   observe({ 
       req(filteredData3())
       #pal <- colorpal2()
       leafletProxy("deallele",data=filteredData3()) %>%
@@ -693,9 +698,8 @@ server <- function(input, output,session)({
         addAwesomeMarkers(filteredData3()$LONGITUDE, filteredData3()$LATITUDE,clusterOptions = markerClusterOptions(),#radius=~as.numeric(D)*5,color = "#777777",fillColor=~pal(Age),fillOpacity = 0.9, 
                           popup = paste0(filteredData3()$SAMPLE,"<br>","Sex: ",filteredData3()$SEX,"<br>","Age: ",filteredData3()$AGE,"<br>","Rs/Total:",round(filteredData3()[,paste("SNP_",input$allsnp,"_",input$allall,sep="")],2),"/",filteredData3()$ReadCount)
         )  
-    }
   })
-  
+
   ##############print table#################
   output$print_taxon_table <- DT::renderDataTable({
     req(taxonomy_table())
@@ -763,9 +767,9 @@ server <- function(input, output,session)({
   filteredData2T <- reactive({
     req(input$anceage)
     req(input$ancecut)
-    if(length(grep("ANCE",names(taxonomy_table())))>0){
+    if(length(grep("ANCE",names(taxonomy_table())))>0 & input$anceage[2]-input$anceage[1]>0){
       Mergetype(taxonomy_table()[taxonomy_table()$SEX%in%input$ancessx & taxonomy_table()$SPECIES%in%input$ancessp & taxonomy_table()$AGE >= as.numeric(input$anceage[1]) & taxonomy_table()$AGE < as.numeric(input$anceage[2]),],type="ANCE")
-    }
+    }else{NULL}
   })
   output$ancesoutlab <- renderUI({
     req(filteredData2T())
@@ -777,42 +781,42 @@ server <- function(input, output,session)({
   filteredData2 <- reactive({
     req(input$anceage)
     req(input$ancecut)
-    if(length(grep("ANCE",names(taxonomy_table())))>0){
+    if(length(grep("ANCE",names(taxonomy_table())))>0 & input$ancecut-input$anceage[2]<0 & input$ancecut-input$anceage[1]>0 &input$anceage[2]>input$anceage[1]){
       Mergetype(taxonomy_table()[taxonomy_table()$SEX%in%input$ancessx & taxonomy_table()$SPECIES%in%input$ancessp & taxonomy_table()$AGE >= as.numeric(input$anceage[1]) & taxonomy_table()$AGE < as.numeric(input$anceage[2]) & taxonomy_table()$AGE >= as.numeric(input$ancecut),],type="ANCE")
-    }
+    }else{NULL}
   })
   filteredData22 <- reactive({
     req(input$anceage)
     req(input$ancecut)
-    if(length(grep("ANCE",names(taxonomy_table())))>0){
-      Mergetype(taxonomy_table()[taxonomy_table()$SEX%in%input$ancessx & taxonomy_table()$SPECIES%in%input$ancessp & taxonomy_table()$AGE >= as.numeric(input$anceage[1]) & taxonomy_table()$AGE < as.numeric(input$anceage[2]) & taxonomy_table()$AGE< as.numeric(input$ancecut),],type="ANCE")
-    }
+    if(length(grep("ANCE",names(taxonomy_table())))>0 & input$ancecut-input$anceage[1]>0 & input$ancecut-input$anceage[2]<0){
+      Mergetype(taxonomy_table()[taxonomy_table()$SEX%in%input$ancessx & taxonomy_table()$SPECIES%in%input$ancessp & taxonomy_table()$AGE > as.numeric(input$anceage[1]) & taxonomy_table()$AGE <= as.numeric(input$anceage[2]) & taxonomy_table()$AGE< as.numeric(input$ancecut),],type="ANCE")
+    }else{NULL}
   })
   
   ###########output ance map
   output$drawance <- renderLeaflet({
-    #if(length(grep("Anc",names(taxonomy_table())))>0){
-    req(filteredData2T())
+   req(filteredData2T(),filteredData2())
+    if(!is.null(filteredData2()) &!is.null(filteredData2T())){
     leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2.48, maxZoom = 10, dragging = T)) %>%
       addTiles(tilesURL) %>% 
       fitBounds(min(filteredData2T()$LONGITUDE)+1,min(filteredData2T()$LATITUDE),max(filteredData2T()$LONGITUDE)-1,max(filteredData2T()$LATITUDE)-0.5) %>%
       addMinicharts(
         filteredData2()$LONGITUDE, filteredData2()$LATITUDE,
         layerId = filteredData2()$SITE,width=4,height=4) %>% addResetMapButton()%>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "bottomright")
-    #}
+    }else{NULL}
   })
   observe({
     if (length(input$ancecomp) == 0) {
       data2 <- 1
     } else if(length(input$ancecomp) <length(grep("ANCE",names(taxonomy_table())))){
       data2=(cbind(filteredData2()[,input$ancecomp],(1-apply(as.data.frame(filteredData2()[,input$ancecomp]),1,sum))))
-      colnames(data2)=c(input$ancecomp,"NON")
+      colnames(data2)=c(input$ancecomp,"NA")
     }
-    else {
+    else{
       data2 <- filteredData2()[,input$ancecomp]
     }
     maxValue <- 1#max(as.matrix(data22))
-    if(input$type1=="bar"){
+    if(input$type1=="bar" &!is.null(filteredData2())){
       leafletProxy("drawance") %>%
         clearMarkers() %>%
         updateMinicharts(
@@ -827,7 +831,7 @@ server <- function(input, output,session)({
             )
           )
         )
-    }else if(input$type1=="pie" & length(grep("ANCE",names(taxonomy_table())))>0){
+    }else if(input$type1=="pie" & length(grep("ANCE",names(taxonomy_table())))>0 &!is.null(filteredData2())){
       leafletProxy("drawance") %>%
         clearMarkers() %>% clearControls() %>%
         updateMinicharts(
@@ -843,7 +847,7 @@ server <- function(input, output,session)({
           ),
           width = sqrt(filteredData2()$Count)*12,transitionTime = 0
         )   
-    }else if(length(select(taxonomy_table(),starts_with("ANCE")))>0){
+    }else if(length(select(taxonomy_table(),starts_with("ANCE")))>0 &!is.null(filteredData2())){
       leafletProxy("drawance") %>%
         clearMarkers() %>%
         updateMinicharts(
@@ -865,9 +869,9 @@ server <- function(input, output,session)({
   griddataanc1<- reactive({
     req(filteredData2())
     req(input$Gridanc)
-	if(length(filteredData2())>0 &input$Gridanc>0){
+	if(length(filteredData2())>0 &input$Gridanc>0 &input$anceage[2]-input$anceage[1]>0){
     gridmap(filteredData2(),input$Gridanc,type="ANCE")
-	}
+	}else{NULL}
   })
   observe({
     if(input$Gridanc>0){
@@ -899,27 +903,28 @@ server <- function(input, output,session)({
   ##############cut 2, less than cut####
   ##output map
   output$drawance2 <- renderLeaflet({
-    req(filteredData2T())
-    #basemap %>%
+    req(filteredData2T(),filteredData22())
+    if(!is.null(filteredData2T()) & !is.null(filteredData22())){
     leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2.48, maxZoom = 10, dragging = T)) %>%
       addTiles(tilesURL) %>%
       fitBounds(min(filteredData2T()$LONGITUDE)+1,min(filteredData2T()$LATITUDE),max(filteredData2T()$LONGITUDE)-1,max(filteredData2T()$LATITUDE)-0.5) %>%
       addMinicharts(
         filteredData22()$LONGITUDE, filteredData22()$LATITUDE,
         layerId = filteredData22()$SITE,width=4,height=4) %>% addResetMapButton()%>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "bottomright")
+  }else{leaflet(data=NULL)}
   })
   observe({
     if (length(input$ancecomp) == 0) {
       data22 <- 1
     } else if(length(input$ancecomp) <length(grep("ANCE",names(taxonomy_table())))){
       data22=(cbind(filteredData22()[,input$ancecomp],(1-apply(as.data.frame(filteredData22()[,input$ancecomp]),1,sum))))
-      colnames(data22)=c(input$ancecomp,"NON")
+      colnames(data22)=c(input$ancecomp,"NA")
     }
     else {
       data22 <- filteredData22()[,input$ancecomp]
     }
-    maxValue <- 1#max(as.matrix(data22))
-    if(input$type1=="bar"){
+    maxValue <- 1
+    if(input$type1=="bar" & !is.null(filteredData2T()) &!is.null(filteredData22())){
       leafletProxy("drawance2") %>%
         clearMarkers() %>%
         updateMinicharts(
@@ -934,7 +939,7 @@ server <- function(input, output,session)({
             )
           )
         )
-    }else if(input$type1=="pie" & length(grep("ANCE",names(taxonomy_table())))>0){
+    }else if(input$type1=="pie" & length(grep("ANCE",names(taxonomy_table())))>0  &!is.null(filteredData2T()) &!is.null(filteredData22())){
       leafletProxy("drawance2") %>%
         clearMarkers() %>% clearControls() %>%
         updateMinicharts(
@@ -950,7 +955,7 @@ server <- function(input, output,session)({
           ),
           width = sqrt(filteredData22()$Count)*12,transitionTime = 0
         )  
-    }else if(length(select(taxonomy_table(),starts_with("ANCE")))>0){
+    }else if(length(select(taxonomy_table(),starts_with("ANCE")))>0 &!is.null(filteredData2T()) &!is.null(filteredData22())){
       leafletProxy("drawance2") %>%
         clearMarkers() %>%
         updateMinicharts(
@@ -972,9 +977,9 @@ server <- function(input, output,session)({
   griddataanc2<- reactive({
     req(filteredData22())
     req(input$Gridanc)
-	if(length(filteredData22())>0 &input$Gridanc>0){
+	if(length(filteredData22())>0 &input$Gridanc>0 &input$anceage[2]-input$anceage[1]>0){
     gridmap(filteredData22(),input$Gridanc,type="ANCE")
-	}
+	}else{NULL}
   })
   observe({
     if(input$Gridanc>0){
@@ -1013,7 +1018,9 @@ server <- function(input, output,session)({
   observeEvent(input$Downa, {
     req(filteredData2T())
     outpath=Thesheets_dirA()
+	if(input$anceage[2]-input$anceage[1]>0){
     gridplot(filteredData2T(),as.numeric(input$anceage[1]),as.numeric(input$anceage[2]),input$GridSizea,type="ANCE",outpath)
+	}else{NULL}
   })
   
   ##draw count plot
@@ -1039,7 +1046,6 @@ server <- function(input, output,session)({
                  quote = "", comment.char = "")#,row.names = 1)
     }
   })
-  
   #############render age UI#####
   output$pcaoutsp <- renderUI({
     req(taxonomy_table())
@@ -1088,7 +1094,7 @@ server <- function(input, output,session)({
                   as.numeric %>%
                   #round(2) %>%
                   max(na.rm = TRUE),
-                step = 0.1,
+                step = 0.01,
                 value = range(taxonomy_table()$LONGITUDE))
   })
   output$pcaoutlat <- renderUI({
@@ -1100,7 +1106,7 @@ server <- function(input, output,session)({
                 max = taxonomy_table()$LATITUDE %>%
                   as.numeric %>%
                   max(na.rm = TRUE),
-                step = 1,
+                step = 0.01,
                 value = range(taxonomy_table()$LATITUDE))
   })
   ############draw pca#########################
@@ -1109,11 +1115,12 @@ server <- function(input, output,session)({
     req(PCA_table())
     drawpca(taxonomy_table(),as.character(input$pcasx),as.character(input$pcasp),as.numeric(input$pcaage[1]),as.numeric(input$pcaage[2]),PCA_table(),input$pcalat[1],input$pcalat[2],input$pcalog[1],input$pcalog[2],(input$PC1),(input$PC2))
   })
-  
   #######reactiveData#######################
   filteredData4 <- reactive({
     req(input$pcaage)
+	if(input$pcaage[2]-input$pcaage[1]>0 & input$pcalog[2]-input$pcalog[1]>0 & input$pcalat[2]-input$pcalat[1]>0){
     Merge(taxonomy_table()[taxonomy_table()$SEX%in%input$pcasx & taxonomy_table()$SPECIES%in%input$pcasp & taxonomy_table()$AGE >= as.numeric(input$pcaage[1]) & taxonomy_table()$AGE < as.numeric(input$pcaage[2]) & taxonomy_table()$LONGITUDE >=as.numeric(input$pcalog[1]) & taxonomy_table()$LONGITUDE <=as.numeric(input$pcalog[2]) & taxonomy_table()$LATITUDE >=as.numeric(input$pcalat[1]) &taxonomy_table()$LATITUDE <=as.numeric(input$pcalat[2]),])
+  }else{NULL}
   })
   #color 
   colorpal1 <- reactive({
@@ -1142,8 +1149,7 @@ server <- function(input, output,session)({
       addCircleMarkers(filteredData4()$LONGITUDE, filteredData4()$LATITUDE,radius=sqrt(filteredData4()$Count)*2
                        ,weight=1,popup=paste0(filteredData4()$SAMPLE),color = "#777777",fillColor = pal(filteredData4()$AGE), fillOpacity = 0.9,stroke = FALSE) %>% 
       addResetMapButton() %>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "topright") %>%
-      addLegendSize(position = "bottomleft",col="black",fillColor="white",baseSize=min(sizeNumeric(filteredData4()$Count*2,baseSize = mean(filteredData4()$Count)*2.5))
-                    ,values = sizeNumeric(filteredData4()$Count,baseSize = mean(filteredData4()$Count)),shape="circle",orientation="horizontal",breaks=5)
+      addLegendSize(position = "bottomleft",col="black",fillColor="white",baseSize=min(sizeNumeric(filteredData4()$Count*2,baseSize = mean(filteredData4()$Count)*2.5)) ,values = sizeNumeric(filteredData4()$Count,baseSize = mean(filteredData4()$Count)),shape="circle",orientation="horizontal",breaks=5)
   })
   
   ##################multiple SNPs########################
@@ -1168,7 +1174,7 @@ server <- function(input, output,session)({
     sliderInput("snpage",
                 label = "Select a time range",
                 min = 0,
-                max = taxonomy_table()$AGE %>% #max(taxonomy_table()[apply(as.matrix(taxonomy_table()[,names(taxonomy_table())[grepl("SNP_",names(taxonomy_table())) & grepl("_[A,C,G,T,D]",names(taxonomy_table()))]]),1,sum)>0,"Age"]) %>%#taxonomy_table()$AGE %>%
+                max = taxonomy_table()$AGE %>% 
                   as.numeric %>%
                   max(na.rm = TRUE),
                 step = 10,
@@ -1177,7 +1183,7 @@ server <- function(input, output,session)({
   output$snpoutsnp <- renderUI({
     selectInput("snpsnp",
                 label = "Select your variations",
-                choices = unique(names(taxonomy_table() %>% select(starts_with("SNP_")))),#names(taxonomy_table())[grepl("SNP_",names(taxonomy_table())) & grepl("_[A,C,G,T,D]",names(taxonomy_table()))],
+                choices = unique(names(taxonomy_table() %>% select(starts_with("SNP_")))),
                 multiple = TRUE)
   })
   output$snpoutlog <- renderUI({
@@ -1190,7 +1196,7 @@ server <- function(input, output,session)({
                 max = taxonomy_table()$LONGITUDE%>%
 				as.numeric %>%
                   max(na.rm = TRUE),
-                step = 0.1,
+                step = 0.01,
                 value = range(as.numeric(taxonomy_table()$LONGITUDE)))
   })
   output$snpoutlat <- renderUI({
@@ -1203,7 +1209,7 @@ server <- function(input, output,session)({
                 max = taxonomy_table()$LATITUDE %>%
 				as.numeric %>%
                   max(na.rm = TRUE),
-                step = 1,
+                step = 0.01,
                 value = range(as.numeric(taxonomy_table()$LATITUDE)))
 				})
   output$errmultsnp <- renderText({
@@ -1214,13 +1220,13 @@ server <- function(input, output,session)({
   ##active data
   filteredData5 <- reactive({
     req(input$snpage,taxonomy_table())
-	req(input$alltypesnp,input$snplog,input$snplat)
-    if(length(select(taxonomy_table(),starts_with("SNP_")))>0 & input$alltypesnp=="ReadCounts"){
+	req(input$alltypesnp,input$snplog,input$snplat,input$snpsnp)
+    if(length(select(taxonomy_table(),starts_with("SNP_")))>0 & input$alltypesnp=="ReadCounts" & length(input$snpsnp)>0 & input$snpage[2]-input$snpage[1]>0 & input$snplog[2]-input$snplog[1]>0 & input$snplat[2]-input$snplat[1]>0){
       MergeawsomeCount(taxonomy_table()[taxonomy_table()$SEX%in%input$snpsx & taxonomy_table()$SPECIES%in%input$snpsp & taxonomy_table()$AGE >= as.numeric(input$snpage[1]) & taxonomy_table()$AGE <= as.numeric(input$snpage[2])
-                                   & taxonomy_table()$LONGITUDE>=input$snplog[1] & taxonomy_table()$LONGITUDE<=input$snplog[2] & taxonomy_table()$LATITUDE>=input$snplat[1] & taxonomy_table()$LATITUDE<=input$snplat[2],],mult=TRUE)
-    }else if(input$alltypesnp=="Genotype"){
+                                   & taxonomy_table()$LONGITUDE>=input$snplog[1] & taxonomy_table()$LONGITUDE<=input$snplog[2] & taxonomy_table()$LATITUDE>=input$snplat[1] & taxonomy_table()$LATITUDE<=input$snplat[2],],mult=TRUE,snplist=c(input$snpsnp))
+    }else if(input$alltypesnp=="Genotype" & input$snpage[2]-input$snpage[1]>0 & input$snplog[2]-input$snplog[1]>0 & input$snplat[2]-input$snplat[1]>0){
 	Mergeawsome(taxonomy_table()[taxonomy_table()$SEX%in%input$snpsx & taxonomy_table()$SPECIES%in%input$snpsp & taxonomy_table()$AGE >= as.numeric(input$snpage[1]) & taxonomy_table()$AGE <= as.numeric(input$snpage[2])
-                                   & taxonomy_table()$LONGITUDE>=input$snplog[1] & taxonomy_table()$LONGITUDE<=input$snplog[2] & taxonomy_table()$LATITUDE>=input$snplat[1] & taxonomy_table()$LATITUDE<=input$snplat[2],],mult=TRUE)
+                                   & taxonomy_table()$LONGITUDE>=input$snplog[1] & taxonomy_table()$LONGITUDE<=input$snplog[2] & taxonomy_table()$LATITUDE>=input$snplat[1] & taxonomy_table()$LATITUDE<=input$snplat[2],],mult=TRUE,snplist=c(input$snpsnp))
 	}
 	else{
       return (NULL)
@@ -1357,8 +1363,8 @@ server <- function(input, output,session)({
       if(length(input$hapty)==1){
 	selectInput("hapsx",
                   label = "Select sex",
-                  choices = c(Choose='',unique(taxonomy_table()[taxonomy_table()[,paste("CAT_",input$hapty,sep="")]!="unknown","SEX"])),#unique(taxonomy_table()$SEX),
-                  multiple = TRUE,selected=unique(taxonomy_table()[taxonomy_table()[,paste("CAT_",input$hapty,sep="")]!="unknown","SEX"])[1])#unique(taxonomy_table()$SEX))
+                  choices = c(Choose='',unique(taxonomy_table()[taxonomy_table()[,paste("CAT_",input$hapty,sep="")]!="unknown","SEX"])),#unique(taxonomy_table()$SEX)
+                  multiple = TRUE,selected=unique(taxonomy_table()[taxonomy_table()[,paste("CAT_",input$hapty,sep="")]!="unknown","SEX"])[1])
 	}
   })
   output$hapoutage <- renderUI({
@@ -1381,7 +1387,7 @@ server <- function(input, output,session)({
                 max = taxonomy_table()$LONGITUDE %>%
                   as.numeric %>%
                   max(na.rm = TRUE),
-                step = 0.1,
+                step = 0.01,
                 value = range(taxonomy_table()$LONGITUDE))
   })
   output$hapoutlat <- renderUI({
@@ -1393,7 +1399,7 @@ server <- function(input, output,session)({
                 max = taxonomy_table()$LATITUDE %>%
                   as.numeric %>%
                   max(na.rm = TRUE),
-                step = 1,
+                step = 0.01,
                 value = range(taxonomy_table()$LATITUDE))
   })
   output$errhap <- renderText({
@@ -1415,12 +1421,12 @@ server <- function(input, output,session)({
 	req(input$hapsx)
 	req(input$hapsp)
 	req(taxonomy_table())
-     if(length(select(taxonomy_table(),starts_with("CAT_")))>0 & length(input$hapty)==1){
+     if(length(select(taxonomy_table(),starts_with("CAT_")))>0& length(input$hapty)==1 & input$hapage[2]-input$hapage[1]>0 & input$haplog[2]-input$haplog[1]>0 & input$haplat[2]-input$haplat[1]>0){
        MergeMT(taxonomy_table()[taxonomy_table()$SEX%in%input$hapsx & 
 	 taxonomy_table()$SPECIES%in%input$hapsp & taxonomy_table()$AGE >= as.numeric(input$hapage[1]) &  taxonomy_table()$AGE < as.numeric(input$hapage[2]) &
 	 taxonomy_table()$LATITUDE >= as.numeric(input$haplat[1]) &  taxonomy_table()$LATITUDE < as.numeric(input$haplat[2]) &
 	 taxonomy_table()$LONGITUDE >= as.numeric(input$haplog[1]) &  taxonomy_table()$LONGITUDE < as.numeric(input$haplog[2]),],type=input$hapty)
-	}
+	}else{NULL}
   })
   output$hapoutlab <- renderUI({
     req(filteredData6())
@@ -1442,9 +1448,8 @@ server <- function(input, output,session)({
   ############DRAWPLOT#########################
   ##output haplotype map
   output$hapmap <- renderLeaflet({
-    if(length(select(taxonomy_table(),starts_with("CAT")))>0){
-      req(filteredData6())
-      leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 10, dragging = T)) %>%
+   req(filteredData6())
+       leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 10, dragging = T)) %>%
         addTiles(tilesURL) %>%
         fitBounds(min(filteredData6()$LONGITUDE)-0.3,min(filteredData6()$LATITUDE)-0.3,max(filteredData6()$LONGITUDE)+0.3,max(filteredData6()$LATITUDE)+0.3) %>%
         addMinicharts(filteredData6()$LONGITUDE, filteredData6()$LATITUDE,
@@ -1457,23 +1462,24 @@ server <- function(input, output,session)({
           rectangleOptions = drawRectangleOptions(shapeOptions=drawShapeOptions(fillOpacity = 0 ,color = 'white',weight = 3)),
           circleOptions = FALSE,circleMarkerOptions = FALSE,
           editOptions = editToolbarOptions(edit = FALSE, selectedPathOptions = selectedPathOptions())) 
-    }
   })
   observe({
-  req(input$hapty)
+  req(input$hapty,filteredData6(),input$haphap,input$haplab)
     if (length(input$haphap) == 0){
       datahap <- 1
-    }else if(length(input$haphap)<length(unique(grep(input$hapty,names(filteredData6()))))){
+    }else if(length(input$haphap)<length(unique(grep(input$hapty,names(filteredData6())))) &all(input$haphap%in%names(filteredData6())) &all(input$haplab%in%names(filteredData6()))){
       datahap <- cbind(filteredData6()[,input$haphap],(1-apply(as.data.frame(filteredData6()[,input$haphap]),1,sum)))
-      colnames(datahap)=c(input$haphap,"NON")
-    }else if (length(input$haphap)==length(unique(grep(input$hapty,names(filteredData6()))))){
+      colnames(datahap)=c(input$haphap,"NA")
+	  haplap=c(input$haplab)
+    }else if(length(input$haphap)==length(unique(grep(input$hapty,names(filteredData6()))))&all(input$haphap%in%names(filteredData6())) &all(input$haplab%in%names(filteredData6()))){
       datahap <- filteredData6()[,input$haphap]
-    }
+	   haplap=c(input$haplab)
+    }else{datahap=1
+	haplap="SAMPLE"}
     
     maxValue <- max(as.matrix(datahap))#length(unique(grep("MT_",names(filteredData6()))))
-    
-    #factorPal <- colorFactor(rcolors$rainbow,names(datahap))
-    if(length(select(taxonomy_table(),starts_with("CAT")))>0){
+	if(all(input$haplab%in%names(filteredData6()))){htm=labelpop(filteredData6(),input$haplab)}else{NULL}
+  #  if(length(select(taxonomy_table(),starts_with("CAT")))>0 & all(input$haphap%in%names(filteredData6()))){
       leafletProxy("hapmap") %>%
         clearMarkers() %>% clearControls() %>%
         updateMinicharts(
@@ -1481,16 +1487,14 @@ server <- function(input, output,session)({
           chartdata =  datahap,
           maxValues = maxValue,
           type ="pie",showLabels = input$labels4,legend=TRUE,legendPosition ="bottomright",
-          colorPalette = get_color(rcolors$t2m_29lev, n = length(colnames(datahap))+1),#brewer.pal(11, input$colors4)[c(1,11,3,9,2,8,4,11,5,1,6,4,7,2,1,11,3,9,2,8,4,11,3,7,2,9)],
+          colorPalette = get_color(rcolors$t2m_29lev, n = length(colnames(datahap))+1),
           popup = popupArgs(
-            #labels = input$haphap,
-            html = labelpop(filteredData6(),input$haplab
-            )
+            html = labelpop(filteredData6(),haplap)
           ),
           width = sqrt(filteredData6()$Count)*3,transitionTime = 0
-        ) %>% addLegendSize(position = "bottomleft",col="black",fillColor="white",baseSize=quantile(sqrt(filteredData6()$Count)*1.5,0.5),#median(sqrt(filteredData6()$Count)*3*0.6),
+        ) %>% addLegendSize(position = "bottomleft",col="black",fillColor="white",baseSize=quantile(sqrt(filteredData6()$Count)*1.4,0.5),#median(sqrt(filteredData6()$Count)*3*0.6),
                             values = (filteredData6()$Count),shape="circle",orientation="horizontal",breaks=5) #%>%
-    }
+    #}
   })
   ############addgrid map and merge###############
   griddatahap<- reactive({
@@ -1558,9 +1562,7 @@ server <- function(input, output,session)({
                                      , location_id_colname = "SITE")
     for(id in found_in_bounds1){
       if(id %in% data_of_click$clickedMarker){
-        # don't add id
       } else {
-        # add id
         data_of_click$clickedMarker<-append(data_of_click$clickedMarker, id, 0)
       }
     }
@@ -1584,12 +1586,10 @@ server <- function(input, output,session)({
   if(input$Gridhap==0){
     # loop through list of one or more deleted features/ polygons
     for(feature in input$hapmap_draw_deleted_features$features){
-      
       # get ids for locations within the bounding shape
       bounded_layer_ids <- findLocations(shape = feature
                                          , location_coordinates = SpatialPointsDataFrame(filteredData6()[,c('LONGITUDE', 'LATITUDE')] , filteredData6())
                                          , location_id_colname = "SecondSite")
-      
       output$hapCount <- renderPlotly({
         return(NULL)
       })
@@ -1597,7 +1597,6 @@ server <- function(input, output,session)({
       proxy <- leafletProxy("hapmap")
       proxy %>% removeMarker(layerId = as.character(bounded_layer_ids))
       first_layer_ids <- subset(filteredData6(), SecondSite %in% bounded_layer_ids)$SITE
-      
       data_of_click$clickedMarker <- data_of_click$clickedMarker[!data_of_click$clickedMarker
                                                                  %in% first_layer_ids]
     }
@@ -1607,12 +1606,10 @@ server <- function(input, output,session)({
   if(input$Gridhap>0){
     # loop through list of one or more deleted features/ polygons
     for(feature in input$hapmap_draw_deleted_features$features){
-      
       # get ids for locations within the bounding shape
       bounded_layer_ids <- findLocations(shape = feature
                                          , location_coordinates = SpatialPointsDataFrame(griddatahap()[,c('LONGITUDE', 'LATITUDE')] , griddatahap())
                                          , location_id_colname = "SecondSite")
-      
       output$hapCount <- renderPlotly({
         return(NULL)
       })
@@ -1620,7 +1617,6 @@ server <- function(input, output,session)({
       proxy <- leafletProxy("hapmap")
       proxy %>% removeMarker(layerId = as.character(bounded_layer_ids))
       first_layer_ids <- subset(griddatahap(), SecondSite %in% bounded_layer_ids)$SITE
-      
       data_of_click$clickedMarker <- data_of_click$clickedMarker[!data_of_click$clickedMarker
                                                                  %in% first_layer_ids]
     }

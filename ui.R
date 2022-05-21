@@ -20,6 +20,7 @@ library(rcolors)
 library(forcats)
 library(foreach)
 #library(doParallel)
+#library(parallel)
 
 source("code/Mergeawsome.R")
 ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
@@ -100,7 +101,7 @@ ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
                                             uiOutput("pieoutlat"),uiOutput("pieoutlog"),uiOutput("pieoutlab"),
                                             numericInput("GridSize","Time interval (years)",1000,min=100,max=10000),
                                             textInput("root", "Please enter your project root:"),
-                                            shinyFiles::shinyDirButton(id = 'sheets_dir', label = "Path to your output folder", title = "Sheets Folder Select"),
+                                            shinyDirButton(id = 'sheets_dir', label = "Path to your output folder", title = "Sheets Folder Select"),
                                             verbatimTextOutput("sheets_dir"),
                                             actionButton("Down","Draw temporal maps"),
                                             numericInput("Gridpie","Grid Size for geographic binning",0,min=0,max=10)
@@ -141,7 +142,7 @@ ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
                                             uiOutput("ancesoutcut"),uiOutput("ancesoutlab"),
                                             numericInput("GridSizea","Time interval (years)",1000,min=100,max=10000),
 											textInput("rootA", "Please enter your project root:"),
-                                            shinyFiles::shinyDirButton(id = 'sheets_dirA', label = "Path to your output folder", title = "Sheets Folder Select"),
+                                            shinyDirButton(id = 'sheets_dirA', label = "Path to your output folder", title = "Sheets Folder Select"),
                                             verbatimTextOutput("sheets_dirA"),
                                             actionButton("Downa","Draw temporal maps"),
                                             numericInput("Gridanc","Grid Size for geographic binning",0,min=0,max=10)
@@ -203,7 +204,7 @@ ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
                                             fileInput("in_para_table", "Please select your parameter file. Note: this should be saved either as *.txt or *.tsv",
                                                       accept = c(".txt", ".tsv")),
                                             textInput("root1", "Please enter your project root:"),
-                                            shinyFiles::shinyDirButton(id = 'sheets_dir1', label = "Path to your project folder", title = "Sheets Folder Selector"),
+                                           shinyDirButton(id = 'sheets_dir1', label = "Path to your project folder", title = "Sheets Folder Selector"),
                                             verbatimTextOutput("sheets_dir1"),
                                             actionButton("Draw", "Generate Plots")
                            )),

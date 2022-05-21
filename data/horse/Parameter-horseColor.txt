@@ -10,4 +10,4 @@ longitudest	-143
 longitudeend	143
 latitudest	35
 latitudeend	73
-type	ReadsCounts
+type	ReadCounts

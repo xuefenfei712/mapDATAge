@@ -5,7 +5,7 @@ Start	0
 End	10000
 WinSize	1000
 StepSize	500
-Allele	D
+Allele	T
 longitudest	-9
 longitudeend	142
 latitudest	35
