@@ -340,7 +340,7 @@ server <- function(input, output,session)({
         clearMarkers() %>% clearControls() %>%
         updateMinicharts(
           layerId = filteredData1()$SITE,
-          chartdata =  cbind(filteredData1() %>% select(matches(input$piesnp)),filteredData1()["NON"]),#cbind(filteredData1()$A,filteredData1()$D),
+          chartdata =  cbind(filteredData1() %>% select(matches(input$piesnp)),filteredData1()[,"NA"]),#cbind(filteredData1()$A,filteredData1()$D),
           maxValues = maxValue,width=15,height=15,#legend=TRUE,
           type =input$type,showLabels = input$labels,
           colorPalette = brewer.pal(11, input$colors1)[c(2,9,4,5)],
@@ -355,7 +355,7 @@ server <- function(input, output,session)({
         clearMarkers() %>% clearControls() %>%
         updateMinicharts(
           layerId = filteredData1()$SITE,
-          chartdata =  cbind(filteredData1() %>% select(matches(input$piesnp)),filteredData1()["NON"]),#cbind(filteredData1()$A,filteredData1()$D),
+          chartdata =  cbind(filteredData1() %>% select(matches(input$piesnp)),filteredData1()[,"NA"]),#cbind(filteredData1()$A,filteredData1()$D),
           maxValues = maxValue,
           type =input$type,showLabels = input$labels,
           colorPalette = brewer.pal(11, input$colors1)[c(2,9,4,5)],
@@ -372,7 +372,7 @@ server <- function(input, output,session)({
         clearMarkers() %>% 
         updateMinicharts(
           layerId = filteredData1()$SITE,
-          chartdata =  cbind(filteredData1() %>% select(matches(input$piesnp)),filteredData1()["NA"]),
+          chartdata =  cbind(filteredData1() %>% select(matches(input$piesnp)),filteredData1()[,"NA"]),
           maxValues = maxValue,
           type =input$type,showLabels = input$labels,
           colorPalette = brewer.pal(11, input$colors1)[c(2,9,4,5)],
@@ -398,7 +398,7 @@ server <- function(input, output,session)({
         clearMarkers() %>% clearControls() %>%
         removeMinicharts(layerId = filteredData1()$SITE) %>%
         addMinicharts(as.numeric(griddata()$LONGITUDE), as.numeric(griddata()$LATITUDE),layerId = as.character(griddata()$SITE),
-                      chartdata= cbind(griddata() %>% select(matches(input$piesnp)),as.numeric(griddata()$NON)),#cbind(as.numeric(griddata()$A),as.numeric(griddata()$D)),
+                      chartdata= cbind(griddata() %>% select(matches(input$piesnp)),as.numeric(griddata()[,"NA"])),#cbind(as.numeric(griddata()$A),as.numeric(griddata()$D)),
 					  type="pie",
                       colorPalette = brewer.pal(11, input$colors1)[c(2,9,4,5)],
                       popup = popupArgs(
@@ -737,11 +737,11 @@ server <- function(input, output,session)({
                 value = range(taxonomy_table()$AGE))
   })
   output$ancesout1 <- renderUI({
-    if(length(grep("ANCE",names(taxonomy_table())))>0){
+    if(length(grep("ANC",names(taxonomy_table())))>0){
       selectInput("ancecomp",
                   label = "Select ancestral origins",
-                  choices = names(taxonomy_table())[grep("ANCE",names(taxonomy_table()))],
-                  multiple = TRUE,selected="ANCE1")
+                  choices = names(taxonomy_table())[grep("ANC",names(taxonomy_table()))],
+                  multiple = TRUE,selected="ANC1")
     }
   })
   output$ancesoutcut <- renderUI({
@@ -759,16 +759,16 @@ server <- function(input, output,session)({
   })
   
   output$errance <- renderText({
-    if(length(grep("ANCE",names(taxonomy_table())))==0){
-      validate("The required data were not part of your Input File. Please make sure that columns labelled 'ANCE' are provided")
+    if(length(grep("ANC",names(taxonomy_table())))==0){
+      validate("The required data were not part of your Input File. Please make sure that columns labelled 'ANC' are provided")
     }
   })
   #############active data
   filteredData2T <- reactive({
     req(input$anceage)
     req(input$ancecut)
-    if(length(grep("ANCE",names(taxonomy_table())))>0 & input$anceage[2]-input$anceage[1]>0){
-      Mergetype(taxonomy_table()[taxonomy_table()$SEX%in%input$ancessx & taxonomy_table()$SPECIES%in%input$ancessp & taxonomy_table()$AGE >= as.numeric(input$anceage[1]) & taxonomy_table()$AGE < as.numeric(input$anceage[2]),],type="ANCE")
+    if(length(grep("ANC",names(taxonomy_table())))>0 & as.numeric(input$anceage[2])-as.numeric(input$anceage[1])>0){
+      Mergetype(taxonomy_table()[taxonomy_table()$SEX%in%input$ancessx & taxonomy_table()$SPECIES%in%input$ancessp & taxonomy_table()$AGE >= as.numeric(input$anceage[1]) & taxonomy_table()$AGE < as.numeric(input$anceage[2]),],type="ANC")
     }else{NULL}
   })
   output$ancesoutlab <- renderUI({
@@ -781,22 +781,22 @@ server <- function(input, output,session)({
   filteredData2 <- reactive({
     req(input$anceage)
     req(input$ancecut)
-    if(length(grep("ANCE",names(taxonomy_table())))>0 & input$ancecut-input$anceage[2]<0 & input$ancecut-input$anceage[1]>0 &input$anceage[2]>input$anceage[1]){
-      Mergetype(taxonomy_table()[taxonomy_table()$SEX%in%input$ancessx & taxonomy_table()$SPECIES%in%input$ancessp & taxonomy_table()$AGE >= as.numeric(input$anceage[1]) & taxonomy_table()$AGE < as.numeric(input$anceage[2]) & taxonomy_table()$AGE >= as.numeric(input$ancecut),],type="ANCE")
+    if(length(grep("ANC",names(taxonomy_table())))>0 & as.numeric(input$ancecut)-as.numeric(input$anceage[2])<0 & as.numeric(input$ancecut)-as.numeric(input$anceage[1])>0 & as.numeric(input$anceage[2])>as.numeric(input$anceage[1])){
+      Mergetype(taxonomy_table()[taxonomy_table()$SEX%in%input$ancessx & taxonomy_table()$SPECIES%in%input$ancessp & taxonomy_table()$AGE >= as.numeric(input$anceage[1]) & taxonomy_table()$AGE < as.numeric(input$anceage[2]) & taxonomy_table()$AGE >= as.numeric(input$ancecut),],type="ANC")
     }else{NULL}
   })
   filteredData22 <- reactive({
     req(input$anceage)
     req(input$ancecut)
-    if(length(grep("ANCE",names(taxonomy_table())))>0 & input$ancecut-input$anceage[1]>0 & input$ancecut-input$anceage[2]<0){
-      Mergetype(taxonomy_table()[taxonomy_table()$SEX%in%input$ancessx & taxonomy_table()$SPECIES%in%input$ancessp & taxonomy_table()$AGE > as.numeric(input$anceage[1]) & taxonomy_table()$AGE <= as.numeric(input$anceage[2]) & taxonomy_table()$AGE< as.numeric(input$ancecut),],type="ANCE")
+    if(length(grep("ANC",names(taxonomy_table())))>0 &  as.numeric(input$ancecut)>input$anceage[1] &  as.numeric(input$ancecut)<input$anceage[2]){
+      Mergetype(taxonomy_table()[taxonomy_table()$SEX%in%input$ancessx & taxonomy_table()$SPECIES%in%input$ancessp & taxonomy_table()$AGE > as.numeric(input$anceage[1]) & taxonomy_table()$AGE <= as.numeric(input$anceage[2]) & taxonomy_table()$AGE< as.numeric(input$ancecut),],type="ANC")
     }else{NULL}
   })
   
   ###########output ance map
   output$drawance <- renderLeaflet({
    req(filteredData2T(),filteredData2())
-    if(!is.null(filteredData2()) &!is.null(filteredData2T())){
+    if(nrow(filteredData2())>0 & nrow(filteredData2T())>0){
     leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2.48, maxZoom = 10, dragging = T)) %>%
       addTiles(tilesURL) %>% 
       fitBounds(min(filteredData2T()$LONGITUDE)+1,min(filteredData2T()$LATITUDE),max(filteredData2T()$LONGITUDE)-1,max(filteredData2T()$LATITUDE)-0.5) %>%
@@ -808,7 +808,7 @@ server <- function(input, output,session)({
   observe({
     if (length(input$ancecomp) == 0) {
       data2 <- 1
-    } else if(length(input$ancecomp) <length(grep("ANCE",names(taxonomy_table())))){
+    } else if(length(input$ancecomp) <length(grep("ANC",names(taxonomy_table())))){
       data2=(cbind(filteredData2()[,input$ancecomp],(1-apply(as.data.frame(filteredData2()[,input$ancecomp]),1,sum))))
       colnames(data2)=c(input$ancecomp,"NA")
     }
@@ -831,7 +831,7 @@ server <- function(input, output,session)({
             )
           )
         )
-    }else if(input$type1=="pie" & length(grep("ANCE",names(taxonomy_table())))>0 &!is.null(filteredData2())){
+    }else if(input$type1=="pie" & length(grep("ANC",names(taxonomy_table())))>0 &!is.null(filteredData2())){
       leafletProxy("drawance") %>%
         clearMarkers() %>% clearControls() %>%
         updateMinicharts(
@@ -847,7 +847,7 @@ server <- function(input, output,session)({
           ),
           width = sqrt(filteredData2()$Count)*12,transitionTime = 0
         )   
-    }else if(length(select(taxonomy_table(),starts_with("ANCE")))>0 &!is.null(filteredData2())){
+    }else if(length(select(taxonomy_table(),starts_with("ANC")))>0 &!is.null(filteredData2())){
       leafletProxy("drawance") %>%
         clearMarkers() %>%
         updateMinicharts(
@@ -870,7 +870,7 @@ server <- function(input, output,session)({
     req(filteredData2())
     req(input$Gridanc)
 	if(length(filteredData2())>0 &input$Gridanc>0 &input$anceage[2]-input$anceage[1]>0){
-    gridmap(filteredData2(),input$Gridanc,type="ANCE")
+    gridmap(filteredData2(),input$Gridanc,type="ANC")
 	}else{NULL}
   })
   observe({
@@ -879,7 +879,7 @@ server <- function(input, output,session)({
         clearMarkers() %>% clearControls() %>%
         removeMinicharts(layerId = filteredData2()$SITE) %>%
         addMinicharts(as.numeric(griddataanc1()$LONGITUDE), as.numeric(griddataanc1()$LATITUDE),
-                      chartdata=data.frame(lapply(griddataanc1()[,names(griddataanc1())[grep("ANCE",names(griddataanc1()))]],as.numeric)),type="pie",
+                      chartdata=data.frame(lapply(griddataanc1()[,names(griddataanc1())[grep("ANC",names(griddataanc1()))]],as.numeric)),type="pie",
                       colorPalette = brewer.pal(11, input$colors2)[c(2,5,11,1,9,3,8,4)],
                       width = 10*sqrt(as.numeric(griddataanc1()$Count)))%>%
         addGraticule(interval = input$Gridanc, style = list(color = "#FF0000", weight = 0.1,fillOpacity=0.1))
@@ -916,7 +916,7 @@ server <- function(input, output,session)({
   observe({
     if (length(input$ancecomp) == 0) {
       data22 <- 1
-    } else if(length(input$ancecomp) <length(grep("ANCE",names(taxonomy_table())))){
+    } else if(length(input$ancecomp) <length(grep("ANC",names(taxonomy_table())))){
       data22=(cbind(filteredData22()[,input$ancecomp],(1-apply(as.data.frame(filteredData22()[,input$ancecomp]),1,sum))))
       colnames(data22)=c(input$ancecomp,"NA")
     }
@@ -939,7 +939,7 @@ server <- function(input, output,session)({
             )
           )
         )
-    }else if(input$type1=="pie" & length(grep("ANCE",names(taxonomy_table())))>0  &!is.null(filteredData2T()) &!is.null(filteredData22())){
+    }else if(input$type1=="pie" & length(grep("ANC",names(taxonomy_table())))>0  &!is.null(filteredData2T()) &!is.null(filteredData22())){
       leafletProxy("drawance2") %>%
         clearMarkers() %>% clearControls() %>%
         updateMinicharts(
@@ -955,7 +955,7 @@ server <- function(input, output,session)({
           ),
           width = sqrt(filteredData22()$Count)*12,transitionTime = 0
         )  
-    }else if(length(select(taxonomy_table(),starts_with("ANCE")))>0 &!is.null(filteredData2T()) &!is.null(filteredData22())){
+    }else if(length(select(taxonomy_table(),starts_with("ANC")))>0 &!is.null(filteredData2T()) &!is.null(filteredData22())){
       leafletProxy("drawance2") %>%
         clearMarkers() %>%
         updateMinicharts(
@@ -978,7 +978,7 @@ server <- function(input, output,session)({
     req(filteredData22())
     req(input$Gridanc)
 	if(length(filteredData22())>0 &input$Gridanc>0 &input$anceage[2]-input$anceage[1]>0){
-    gridmap(filteredData22(),input$Gridanc,type="ANCE")
+    gridmap(filteredData22(),input$Gridanc,type="ANC")
 	}else{NULL}
   })
   observe({
@@ -987,7 +987,7 @@ server <- function(input, output,session)({
         clearMarkers() %>% clearControls() %>%
         removeMinicharts(layerId = filteredData22()$SITE) %>%
         addMinicharts(as.numeric(griddataanc2()$LONGITUDE), as.numeric(griddataanc2()$LATITUDE),
-                      chartdata=data.frame(lapply(griddataanc2()[,names(griddataanc2())[grep("ANCE",names(griddataanc2()))]],as.numeric)),type="pie",
+                      chartdata=data.frame(lapply(griddataanc2()[,names(griddataanc2())[grep("ANC",names(griddataanc2()))]],as.numeric)),type="pie",
                       colorPalette = brewer.pal(11, input$colors2)[c(2,5,11,1,9,3,8,4)],
                       width = 10*sqrt(as.numeric(griddataanc2()$Count)))%>%
         addGraticule(interval = input$Gridanc, style = list(color = "#FF0000", weight = 0.1,fillOpacity=0.1))
@@ -1019,7 +1019,7 @@ server <- function(input, output,session)({
     req(filteredData2T())
     outpath=Thesheets_dirA()
 	if(input$anceage[2]-input$anceage[1]>0){
-    gridplot(filteredData2T(),as.numeric(input$anceage[1]),as.numeric(input$anceage[2]),input$GridSizea,type="ANCE",outpath)
+    gridplot(filteredData2T(),as.numeric(input$anceage[1]),as.numeric(input$anceage[2]),input$GridSizea,type="ANC",outpath)
 	}else{NULL}
   })
   
@@ -1261,7 +1261,7 @@ server <- function(input, output,session)({
       req(filteredData5())
       leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 10, dragging = T)) %>%
         addTiles(tilesURL) %>%
-        fitBounds(min(filteredData5T()$LONGITUDE),min(filteredData5T()$LATITUDE),max(filteredData5T()$LONGITUDE),max(filteredData5T()$LATITUDE)) %>%
+        fitBounds(min(filteredData5T()$LONGITUDE)-0.5,min(filteredData5T()$LATITUDE)-0.3,max(filteredData5T()$LONGITUDE)+0.5,max(filteredData5T()$LATITUDE)+0.3) %>%
         addMinicharts(
           filteredData5T()$LONGITUDE, filteredData5T()$LATITUDE,
           layerId = filteredData5T()$SAMPLE) %>% addResetMapButton() %>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "topright")
@@ -1286,7 +1286,7 @@ server <- function(input, output,session)({
         updateMinicharts(
           layerId = filteredData5T()$SAMPLE,
           chartdata =  datasnp,
-          maxValues = maxValue,width=20,height=30,opacity = 0.8,
+          maxValues = maxValue,width=10,height=30,opacity = 0.8,
           type ="bar",showLabels = input$labels3,legend=TRUE,legendPosition="bottomright",
           colorPalette = brewer.pal(9, input$colors3)[c(2,9,1,7,3,8,4,8,1,8,3,9,2,6,4,1,7,3,9,2,8,4)],
           popup = popupArgs(
@@ -1295,23 +1295,21 @@ server <- function(input, output,session)({
             )
           )
         )
-    }else if(input$type3=="pie" & length(select(taxonomy_table(),starts_with("SNP_")))>0){
-      leafletProxy("snpmap") %>%
-        clearMarkers() %>% clearControls() %>%
-        updateMinicharts(
-          layerId = filteredData5T()$SAMPLE,
-          chartdata =  datasnp,
-          maxValues = maxValue,
-          type ="pie",showLabels = input$labels3,legend=TRUE,legendPosition="bottomright",
-          colorPalette = brewer.pal(9, input$colors3)[c(2,9,1,7,3,8,4,8,1,8,3,9,2,6,4,1,7,3,9,2,8,4)],
-          popup = popupArgs(
-            labels = colnames(datasnp),
-            html = labelpop(filteredData5T(),input$snplab
-            )
-          ),
-          width = sqrt(filteredData5()$Counts)*5,transitionTime = 0
-        ) 
-    }else if(length(select(taxonomy_table(),starts_with("SNP_")))>0){
+    }#else if(input$type3=="pie" & length(select(taxonomy_table(),starts_with("SNP_")))>0){
+     # leafletProxy("snpmap") %>%
+      #  clearMarkers() %>% clearControls() %>%
+       # updateMinicharts(
+        #  layerId = filteredData5T()$SAMPLE,
+        #  chartdata =  datasnp,
+         # maxValues = maxValue,
+         # type ="pie",showLabels = input$labels3,legend=TRUE,legendPosition="bottomright",
+         # colorPalette = brewer.pal(9, input$colors3)[c(2,9,1,7,3,8,4,8,1,8,3,9,2,6,4,1,7,3,9,2,8,4)],
+        #  popup = popupArgs(
+        #    labels = colnames(datasnp),
+          #  html = labelpop(filteredData5T(),input$snplab)),
+          #width = sqrt(filteredData5()$Counts)*5,transitionTime = 0
+       # )}
+    else if(length(select(taxonomy_table(),starts_with("SNP_")))>0){
       leafletProxy("snpmap") %>%
         clearMarkers() %>%
         updateMinicharts(
@@ -1325,7 +1323,7 @@ server <- function(input, output,session)({
             html = labelpop(filteredData5T(),input$snplab
             )
           ),
-          width = 15*(filteredData5T()$Counts),transitionTime = 0
+          width = (filteredData5T()$Counts)*2,transitionTime = 0
         )
     }
   })

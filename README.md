@@ -13,14 +13,17 @@ The mapDATAge package is designed to explore the presence of geographic and temp
 
 ## Getting Started
 A manual providing instructions and examples for using mapDATAge can be found [here!](https://github.com/xuefenfei712/mapDATAge/blob/main/mapDATAgeInstructions.pdf)
-
+And a video tutorial is linked [here!]
 ### Installing
 
-`packages=c("plotly","shiny","shinyFiles","leaflet","shinythemes","RColorBrewer","esquisse","scales",
+`packages=c("plotly","shiny","leaflet","shinythemes","RColorBrewer","esquisse","scales",
 "ggplot2","plotly","markdown","leaflet.minicharts","htmltools","leaflegend","sf","sp","stringi","leaflet.extras",
 "dplyr","rcolors","DT","forcats","foreach","htmlwidgets")`
 
 `install.packages(packages, repo="http://cran.rstudio.org", dependencies=TRUE)`
+
+`install.packages("remotes")
+remotes::install_github("thomasp85/shinyFiles", upgrade = "never")`
 
 ### Launch mapDATAge from a URL or Github
 

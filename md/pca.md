@@ -1,1 +1,1 @@
-Hanover on any sample to obtain metadata. <br>
+Click on any sample to obtain metadata. <br>

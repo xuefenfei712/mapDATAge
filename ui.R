@@ -19,8 +19,6 @@ library(dplyr)
 library(rcolors)
 library(forcats)
 library(foreach)
-#library(doParallel)
-#library(parallel)
 
 source("code/Mergeawsome.R")
 ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
@@ -179,7 +177,7 @@ ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
                                               textColor = "white"),
 											  fluidRow(column(8,uiOutput("snpoutsnp")),column(4,style='color:red; font-weight: bold',selectInput("alltypesnp", "Select Allele type", choices = c(Choose='',"ReadCounts","Genotype"), multiple = FALSE,selectize=FALSE))),
                                             fluidRow(column(6,
-                                                            selectInput("type3", "Chart type", choices = c("bar","pie","polar-area", "polar-radius"),selected="bar")),
+                                                            selectInput("type3", "Chart type", choices = c("bar","polar-area", "polar-radius"),selected="bar")),
                                                      column(6,checkboxInput("labels3", "Show values"))),
                                             fluidRow(
                                               column(6,uiOutput("snpoutsx")),column(6,uiOutput("snpoutsp"))),

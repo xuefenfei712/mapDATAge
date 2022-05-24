@@ -1,2 +1,2 @@
-This draw all the figures as PDF and html files, after the parameter file was imported. <br/>
-Note: a root path should be given (eg C:/ in WINS or /Users in MacOS), and press the button "PATH TO YOUR PROJECT FOLDER" to your working folder.<br/>
+This draws all the figures as PDF and html files, after the parameter file was imported. <br/>
+Note: a root path should be given (eg C:/ in WINS or /Users in MacOS), and press the button "PATH TO YOUR PROJECT FOLDER" to activate your working folder.<br/>

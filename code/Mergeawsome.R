@@ -81,10 +81,10 @@ filter=function(data){
 
   Mergetype=function(data,type=NULL,drop=FALSE){
     chc=c("SITE","SAMPLE","SPECIES","SEX");num=c("LATITUDE","LONGITUDE","AGE")
-    if(type=="ANCE"){
-      char=names(data)[grep("ANCE",names(data))]
+    if(type=="ANC" & nrow(data)>0){
+      char=names(data)[grep("ANC",names(data))]
       d=data[,c(chc,char,num)]
-    }
+   # }
     d$Count=rep(1,nrow(d))
     d2 <- sf::st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
     d3 <- sf::st_intersection(d2)
@@ -101,8 +101,10 @@ filter=function(data){
     new_d$LATITUDE <- sf::st_coordinates(new_d)[, "Y"]
     sf::st_geometry(new_d) <- NULL
     as.data.frame(new_d)
+    #new_d[,"NA"]=1-apply(new_d%>%select(matches("ANC")),1,sum)
     new_d$SecondSite=paste(as.character(new_d$SITE),"_layer",sep="")
     as.data.frame(new_d)
+    }
   }
 
 automaticFigures=function(par,path){
@@ -247,8 +249,8 @@ piemap=basemap %>%
 saveWidget(piemap,paste(path,"/",name,"-",st,"-",end,"-piemap.html",sep=""))
 ########ancestral map##############
 
-if(length(grep("ANCE",names(data1)))>0){
-  datamap1=Mergetype(data1,type="ANCE")
+if(length(grep("ANC",names(data1)))>0){
+  datamap1=Mergetype(data1,type="ANC")
   sizes <- sizeNumeric((datamap1$Count), baseSize = mean(datamap1$Count))
   
 basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
@@ -256,7 +258,7 @@ basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, ma
     fitBounds(min(datamap1$Longitude)+1,min(datamap1$Latitude)+1,max(datamap1$Longitude)-1,max(datamap1$Latitude)-1) %>%
     addResetMapButton() %>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "topright")
   maxValue=1
-  ancescomp=names(datamap1)[grep("ANCE",names(datamap1))]
+  ancescomp=names(datamap1)[grep("ANC",names(datamap1))]
   ancesmap=basemap %>%
     addMinicharts(
       datamap1$Longitude, datamap1$Latitude,
@@ -288,6 +290,7 @@ basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, ma
 }
 ###newadd
 Merge=function(data){
+  if(!is.null(data) &nrow(data)>0){
   d=data[,c("SITE","SAMPLE","SPECIES","SEX","AGE","LONGITUDE", "LATITUDE")]
   d$Count=rep(1,nrow(d))
   charvec=c("SITE","SAMPLE","SPECIES","SEX")
@@ -306,6 +309,7 @@ Merge=function(data){
   sf::st_geometry(new_d) <- NULL
   new_d$SecondSite=paste(as.character(new_d$SITE),"_layer",sep="")
   as.data.frame(new_d)
+  }
 }
 samtime=function(indata){
   sampletime=100
@@ -328,6 +332,7 @@ samtime=function(indata){
 }
 MergeSNP=function(data,snp=NULL,gtp=NULL,drop=FALSE){
   chc=c("SITE","SAMPLE","SPECIES","SEX")
+  if(!is.null(data)&nrow(data)>0){
   d=data[,c(chc,names(data)[grep(snp,names(data))],"LONGITUDE", "LATITUDE","AGE")]
   d$Count=dplyr::if_else(rowSums(d[,names(d)[grep(snp,names(d))]])>0,1,0)
   d=d[d$Count>0,]
@@ -353,8 +358,9 @@ MergeSNP=function(data,snp=NULL,gtp=NULL,drop=FALSE){
   sf::st_geometry(new_d) <- NULL
   new_d$SecondSite=paste(as.character(new_d$SITE),"_lay",sep="")
   new_d=as.data.frame(new_d)
-  new_d[,"NON"]=ifelse(gtp=="Genotype",2-apply(new_d %>% select(matches(snp)),1,sum),1-apply(new_d %>% select(matches(snp)),1,sum))
+  new_d[,"NA"]=ifelse(gtp=="Genotype",2-apply(new_d %>% select(matches(snp)),1,sum),1-apply(new_d %>% select(matches(snp)),1,sum))
   as.data.frame(new_d)
+  }
 }
 ###pca plot
 drawpca=function(data,sex,species,st,end,pca,lat1,lat2,log1,log2,pc1,pc2){
@@ -391,9 +397,9 @@ gridmap=function(data,gra,type=NULL,drop=drop){
   }
   
   latlog=expand.grid(lat=latgr,log=loggr)
-  if(type=="SNP" & length(getsnpname(data))>0 & length(grep("ANCE",names(data)))==0){
+  if(type=="SNP" & length(getsnpname(data))>0 & length(grep("ANC",names(data)))==0){
     latlogtab=cbind(latlog$lat+(gra/2),latlog$log+(gra/2),0,0,0,0,NA,NA,NA,NA)
-    colnames(latlogtab)=c("LATITUDE","LONGITUDE","Count",names(data)[grep("SNP",names(data))],"NON","SAMPLE","SPECIES","SEX","AGE")
+    colnames(latlogtab)=c("LATITUDE","LONGITUDE","Count",names(data)[grep("SNP",names(data))],"NA","SAMPLE","SPECIES","SEX","AGE")
     #latlogtab=apply(latlogtab,1,function(i){
     for(i in 1:nrow(latlogtab)){
       ranks<-data[data$LONGITUDE>=latlog[i,2] & data$LONGITUDE<(latlog[i,2]+gra) & 
@@ -402,8 +408,8 @@ gridmap=function(data,gra,type=NULL,drop=drop){
         latlogtab[i,"Count"]=as.numeric(sum(ranks$Count,na.rm=T))
         latlogtab[i,names(data)[grep("SNP",names(data))][1]]=as.numeric(round(mean(ranks[,names(data)[grep("SNP",names(data))][1]],na.rm=T),2))
         latlogtab[i,names(data)[grep("SNP",names(data))][2]]=as.numeric(round(mean(ranks[,names(data)[grep("SNP",names(data))][2]],na.rm=T),2))
-        if(any(names(ranks)%in%"NON")){
-          latlogtab[i,"NON"]=as.numeric(round(mean(ranks[,"NON"],na.rm=T),2))
+        if(any(names(ranks)%in%"NA")){
+          latlogtab[i,"NA"]=as.numeric(round(mean(ranks[,"NA"],na.rm=T),2))
         }
         latlogtab[i,chc]=apply(ranks[,chc],2,function(x) paste(x, collapse=", "))
        latlogtab[i,"AGE"] =as.numeric(round(mean(ranks[,"AGE"],na.rm=T),2))#stringr::str_flatten(ranks$Age, collapse = ", ")
@@ -469,24 +475,28 @@ gridplot=function(data,st,end,grindsize,type,path){
     addTiles(tilesURL) %>%
     fitBounds(min(data$LONGITUDE),min(data$LATITUDE),max(data$LONGITUDE),max(data$LATITUDE))
   foreach(i=1:nrow(timtab)) %do% {
-    if(type=="SNP"){
+   
+     datamap=data[data$AGE>=as.numeric(timtab[i,1]) & data$AGE<as.numeric(timtab[i,2]),]
+    if(type=="SNP" & nrow(datamap)>0 ){
       coltyp=c(brewer.pal(11, "RdYlGn")[c(1,9,3,5,6)])
       snpname=getsnpname(data)
-    }else if(type=="ANCE"){
+      chartdata = cbind(datamap %>% select(starts_with(type)),datamap[,"NA"])
+    }else if(type=="ANC"& nrow(datamap)>0 ){
       coltyp=c(brewer.pal(11, "Spectral")[c(1,5,11,3,9,2,8,4)])
-      snpname="ANCE"
+      snpname="ANC"
+      chartdata=datamap %>% select(starts_with(type))
     }
-    datamap=data[data$AGE>=as.numeric(timtab[i,1]) & data$AGE<as.numeric(timtab[i,2]),]
+    
     if(nrow(datamap)>0){
       piemap=basemap %>%
         addMinicharts(
           datamap$LONGITUDE, datamap$LATITUDE,
-          chartdata = cbind(datamap %>% select(starts_with(type)),datamap[,"NON"]),
+          chartdata =chartdata,
           maxValues = maxValue,
           type ="pie",
           colorPalette = coltyp,
           popup = popupArgs(
-            labels = c(grep(type,names(datamap),value=TRUE),"NA") ,
+            labels = names(chartdata) ,
             html = paste0(
               "<div>","<h6>","<br>",datamap$SAMPLE,"<h6>",
               "<div>","<h7>","Sex: ",datamap$SEX,"<br>",
@@ -617,6 +627,7 @@ catsorting=function(data,type){
 MergeMT=function(data,type=NULL,drop=FALSE){
   chc=c("SITE","SAMPLE","SPECIES","SEX");num=c("LATITUDE","LONGITUDE","AGE")
   cat=paste("CAT_",type,sep="")
+  if(nrow(data)>0){
   d=data[,c(chc,cat,num)]
   d=d[d[,cat] !="unknown",]
   yname=sort(unique(d[,cat]))
@@ -642,6 +653,7 @@ MergeMT=function(data,type=NULL,drop=FALSE){
   new_d[,cat]=NULL
   new_d$SecondSite=paste(as.character(new_d$SITE),"_layer",sep="")
   as.data.frame(new_d)
+  }
 }
 ##merge multiple snps
 samtimeFr=function(indata){
@@ -666,12 +678,13 @@ samtimeFr=function(indata){
 
 MergeawsomeCount=function(data,mult=FALSE,snplist=NULL,drop=FALSE){
   charvec=c("SITE","SAMPLE","SPECIES","SEX")
+  if(!is.null(data) & nrow(data)>0){ 
   snpname=sort(unique(stringi::stri_replace_first_regex(stringi::stri_replace_last_regex(grep("SNP_",snplist,value = T),pattern="_[A,C,G,T,D]",replacement = ""),"SNP_","")))
-  snpnamefu=names(data %>% select(matches(snpname)))
-  data=data[apply(data[,snpnamefu],1,sum)>0,]
-  d=data[,c(charvec,snpnamefu,"LATITUDE","LONGITUDE","AGE")]
+   snpnamefu=names(data %>% select(matches(snpname)))}
   #snpname=getsnpname(data)
-  if(length(snpname)>0){
+  if(!is.null(snpname) & length(snpname)>0 & nrow(data)>0){
+    data=data[apply(data[,snpnamefu],1,sum)>0,]
+  d=data[,c(charvec,snpnamefu,"LATITUDE","LONGITUDE","AGE")]
     d$Counts=if_else(rowSums(d %>% select(matches(snpname)))>0,1,0)
     d=d[d$Counts>0,]
     #lapply parallel::mc
