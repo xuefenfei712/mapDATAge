@@ -13,7 +13,7 @@ The mapDATAge package is designed to explore the presence of geographic and temp
 
 ## Getting Started
 A manual providing instructions and examples for using mapDATAge can be found [here!](https://github.com/xuefenfei712/mapDATAge/blob/main/mapDATAgeInstructions.pdf)
-And a video tutorial is linked [here!](https://youtu.be/YfKXreXNZ6Q)
+And a video tutorial is linked [here!](https://youtu.be/hx83sUsEYh8)
 ### Installing
 
 `packages=c("plotly","shiny","leaflet","shinythemes","RColorBrewer","esquisse","scales",
