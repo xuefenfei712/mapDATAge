@@ -8,12 +8,12 @@ The mapDATAge package is designed to explore the presence of geographic and temp
 (3) maps of individual ancestry profiles on a map (ANCESTRY);
 (4) PCA (or MDS) and map related maps of spatio-temporal distributions (PCA);
 (5) spatio-temporal distributions of alleles at one or multiple loci (MULTIPLESNPS);
-(6) maps of (sub)haplogroups (HAPLO), and;
+(6) maps of (sub-)haplogroups (HAPLO), and;
 (7) finally, options are provided to automatically generate figures, following the selection of a preselected range of temporal and spatial and temporal parameters, which can be useful to contrast data from different loci and/or species (ONECLICK). 
 
 ## Getting Started
 A manual providing instructions and examples for using mapDATAge can be found [here!](https://github.com/xuefenfei712/mapDATAge/blob/main/mapDATAgeInstructions.pdf)
-And a video tutorial is linked [here!]
+And a video tutorial is linked [here!](https://youtu.be/YfKXreXNZ6Q)
 ### Installing
 
 `packages=c("plotly","shiny","leaflet","shinythemes","RColorBrewer","esquisse","scales",

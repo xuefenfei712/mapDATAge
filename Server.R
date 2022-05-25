@@ -21,7 +21,7 @@ server <- function(input, output,session)({
   })
   output$fileStatus <- eventReactive(input$go, {
     if (is.null(validate_input_files(taxonomy_table()))) {
-      paste("Congrats, no error detected!")
+      paste("Congrats, no errors detected!")
     }
   })
   ###############################draw map#################################
@@ -299,7 +299,7 @@ server <- function(input, output,session)({
   ############labels for shown#####
   output$pieoutlab <- renderUI({
     req(filteredData1())
-    if(length(select(taxonomy_table(),starts_with("SNP_")))>0){
+    if(length(select(taxonomy_table(),starts_with("SNP_")))>0 &nrow(filteredData1())>0){
       selectInput("pielab",
                   label = "Select labels",
                   choices = names(filteredData1())[names(filteredData1())%in% c("n.overlaps","origins","SecondSite")==FALSE],
@@ -398,7 +398,7 @@ server <- function(input, output,session)({
         clearMarkers() %>% clearControls() %>%
         removeMinicharts(layerId = filteredData1()$SITE) %>%
         addMinicharts(as.numeric(griddata()$LONGITUDE), as.numeric(griddata()$LATITUDE),layerId = as.character(griddata()$SITE),
-                      chartdata= cbind(griddata() %>% select(matches(input$piesnp)),as.numeric(griddata()[,"NA"])),#cbind(as.numeric(griddata()$A),as.numeric(griddata()$D)),
+                      chartdata= cbind(griddata() %>% select(matches(input$piesnp)),as.numeric(griddata()[,"NA."])),#cbind(as.numeric(griddata()$A),as.numeric(griddata()$D)),
 					  type="pie",
                       colorPalette = brewer.pal(11, input$colors1)[c(2,9,4,5)],
                       popup = popupArgs(
@@ -1236,10 +1236,12 @@ server <- function(input, output,session)({
 
   output$snpoutlab <- renderUI({
     req(filteredData5())
+	if(nrow(filteredData5())>0){
     selectInput("snplab",
                 label = "Select labels",
                 choices =  names(filteredData5())[names(filteredData5())%in% c("n.overlaps","origins","SecondSite")==FALSE],
                 multiple = TRUE,selected="SAMPLE")
+  }
   })
   # render color
   colorpall <- reactive({
@@ -1257,8 +1259,8 @@ server <- function(input, output,session)({
  })
   ##output snp multiple map
   output$snpmap <- renderLeaflet({
-    if(length(select(taxonomy_table(),starts_with("SNP_")))>0){
-      req(filteredData5())
+   req(filteredData5())
+    if(length(select(taxonomy_table(),starts_with("SNP_")))>0 & nrow(filteredData5())>0){
       leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 10, dragging = T)) %>%
         addTiles(tilesURL) %>%
         fitBounds(min(filteredData5T()$LONGITUDE)-0.5,min(filteredData5T()$LATITUDE)-0.3,max(filteredData5T()$LONGITUDE)+0.5,max(filteredData5T()$LATITUDE)+0.3) %>%
@@ -1286,7 +1288,7 @@ server <- function(input, output,session)({
         updateMinicharts(
           layerId = filteredData5T()$SAMPLE,
           chartdata =  datasnp,
-          maxValues = maxValue,width=10,height=30,opacity = 0.8,
+          maxValues = maxValue,width=20,height=30,opacity = 0.8,
           type ="bar",showLabels = input$labels3,legend=TRUE,legendPosition="bottomright",
           colorPalette = brewer.pal(9, input$colors3)[c(2,9,1,7,3,8,4,8,1,8,3,9,2,6,4,1,7,3,9,2,8,4)],
           popup = popupArgs(

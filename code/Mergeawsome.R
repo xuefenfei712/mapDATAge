@@ -52,20 +52,19 @@ filter=function(data){
 
   Mergeawsome=function(data,mult=FALSE,snplist=NULL,drop=FALSE){
     charvec=c("SITE","SAMPLE","SPECIES","SEX")
-    if(mult==TRUE & length(snplist)>0){
+    if(mult==TRUE & length(snplist)>0 &nrow(data)>0){
        snpname=unique(stringi::stri_replace_first_regex(stringi::stri_replace_last_regex(grep("SNP_",snplist,value = T),pattern="_[A,C,G,T,D]",replacement = ""),"SNP_",""))
         d=data[,c(charvec,snplist,"LATITUDE","LONGITUDE","AGE")]
         d$Counts=rep(1,nrow(d))
         d2 <- st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
         d3 <- st_intersection(d2)
-        d3$origins
           a=names(d)[grep("SNP",names(d))]
           list <- lapply(1:length(d3$origins), function(x) {
             point <- d3[x, ]
             point[,charvec]=apply((data.frame(d2[d3$origins[[x]], charvec])[,charvec]),2,function(x) paste(x, collapse=", "))
             point$AGE <- round(mean(d2[d3$origins[[x]], ]$AGE, na.rm = TRUE),2)
             point$Counts <- sum(d2[d3$origins[[x]], ]$Counts, na.rm = TRUE)
-            point[,a]=apply(data.frame(d2[d3$origins[[x]], a])[,1:2],2,mean)
+            point[,a]=apply(as.data.frame(data.frame(d2[d3$origins[[x]], a])[,a]),2,mean)
             return(point)
           })
           new_d <- do.call(rbind, list)
@@ -335,6 +334,7 @@ MergeSNP=function(data,snp=NULL,gtp=NULL,drop=FALSE){
   if(!is.null(data)&nrow(data)>0){
   d=data[,c(chc,names(data)[grep(snp,names(data))],"LONGITUDE", "LATITUDE","AGE")]
   d$Count=dplyr::if_else(rowSums(d[,names(d)[grep(snp,names(d))]])>0,1,0)
+  if(sum(d$Count)>0){
   d=d[d$Count>0,]
   d$ReadCount=apply(d %>% select(matches(snp)),1,sum)
   d2 <- sf::st_as_sf(d, coords = c("LONGITUDE", "LATITUDE"))
@@ -361,7 +361,7 @@ MergeSNP=function(data,snp=NULL,gtp=NULL,drop=FALSE){
   new_d[,"NA"]=ifelse(gtp=="Genotype",2-apply(new_d %>% select(matches(snp)),1,sum),1-apply(new_d %>% select(matches(snp)),1,sum))
   as.data.frame(new_d)
   }
-}
+}}
 ###pca plot
 drawpca=function(data,sex,species,st,end,pca,lat1,lat2,log1,log2,pc1,pc2){
   st=as.numeric(st);end=as.numeric(end)
@@ -475,9 +475,8 @@ gridplot=function(data,st,end,grindsize,type,path){
     addTiles(tilesURL) %>%
     fitBounds(min(data$LONGITUDE),min(data$LATITUDE),max(data$LONGITUDE),max(data$LATITUDE))
   foreach(i=1:nrow(timtab)) %do% {
-   
      datamap=data[data$AGE>=as.numeric(timtab[i,1]) & data$AGE<as.numeric(timtab[i,2]),]
-    if(type=="SNP" & nrow(datamap)>0 ){
+    if(type=="SNP" & !is.null(datamap) & nrow(datamap)>0 ){
       coltyp=c(brewer.pal(11, "RdYlGn")[c(1,9,3,5,6)])
       snpname=getsnpname(data)
       chartdata = cbind(datamap %>% select(starts_with(type)),datamap[,"NA"])
@@ -682,7 +681,7 @@ MergeawsomeCount=function(data,mult=FALSE,snplist=NULL,drop=FALSE){
   snpname=sort(unique(stringi::stri_replace_first_regex(stringi::stri_replace_last_regex(grep("SNP_",snplist,value = T),pattern="_[A,C,G,T,D]",replacement = ""),"SNP_","")))
    snpnamefu=names(data %>% select(matches(snpname)))}
   #snpname=getsnpname(data)
-  if(!is.null(snpname) & length(snpname)>0 & nrow(data)>0){
+  if(length(snpname)>0 & nrow(data)>0){
     data=data[apply(data[,snpnamefu],1,sum)>0,]
   d=data[,c(charvec,snpnamefu,"LATITUDE","LONGITUDE","AGE")]
     d$Counts=if_else(rowSums(d %>% select(matches(snpname)))>0,1,0)

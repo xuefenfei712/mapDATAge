@@ -91,7 +91,7 @@ DJM613x1_Dan_m2994	horse	female	Ginnerup_Denmark	56.41	10.74	4944	0	0
 DaAn01_Rus_m1883	horse	female	Potapovka_Russia	53.66	50.67	3833	0	0
 Div9_Rus_m15059	horse	female	Divnogorye9_Russia	50.96	39.29	17009	0	0
 Duk2_Hun_m2059	horse	male	Dunaujvaros-Kosziderpadlas_Hungary	46.96	18.94	4009	3	0
-Earb6_Ger_89	horse	male	EnglishThoroughbredstallion(DarkRonald)_Halle	52	12	22	0	0
+Earb6_Ger_89	horse	male	EnglishThoroughbredstallion(DarkRonald)_Halle	52	12	1911	0	0
 Esto2_Est_m661	horse	female	Asva_Estonia	58.41	23.02	2611	1	0
 Esto3_Est_m659	horse	male	Asva_Estonia	58.41	23.02	2609	1	0
 Esto8_Est_m654	horse	male	Ridala_Estonia	58.46	23.03	2604	0	0
@@ -115,7 +115,7 @@ GVA126_Fra_300	horse	male	FresneslesMontauban_France	48.44	1.49	1650	0	1
 GVA133_Fra_200	horse	male	Evreux-Clos-au-Duc-3ruedelaliberation_France	49.03	1.15	1750	0	1
 GVA135_Fra_200	horse	male	Evreux-Clos-au-Duc-3ruedelaliberation_France	49.03	1.15	1750	1	0
 GVA140_Fra_200	horse	male	Evreux-Clos-au-Duc-3ruedelaliberation_France	49.03	1.15	1750	0	0
-GVA191_Fra_m250	horse	female	Boves-LaValleedeGlisy_France	49.85	2.39	1700	1	0
+GVA191_Fra_m250	horse	female	Boves-LaValleedeGlisy_France	49.85	2.39	2250	1	0
 GVA199_Fra_200	horse	female	Vermand-RueCharlesdeGaulle_France	49.88	3.15	1750	0	0
 GVA201_Fra_200	horse	male	Macon-RueRambuteau_France	46.31	4.82	1750	2	0
 GVA237_Fra_100	horse	male	Saint-Quentin-BoisdeCambronne_France	49.85	3.29	1850	0	0
@@ -128,7 +128,7 @@ GVA309_Fra_m210	horse	male	Saint-Laurent-BlangyActiparc-siteS_France	50.3	2.8	21
 GVA310_Fra_m30	horse	female	Saint-Laurent-BlangyActiparc-siteAC_France	50.3	2.8	2065	2	0
 GVA311_Fra_m30	horse	male	Saint-Laurent-BlangyActiparc-siteZ_France	50.3	2.8	1980	0	0
 GVA36_Fra_110	horse	male	Chartres-BoulevarddelaCourtille-C277.2_France	48.44	1.49	1840	0	0
-GVA375_Fra_1550	horse	male	Beauvais-Villiers-de-lIslec.Ceam_France	49.42	2.1	400	0	7
+GVA375_Fra_1550	horse	male	Beauvais-Villiers-de-lIslec.Ceam_France	49.42	2.1	450	0	7
 GVA43_Fra_110	horse	female	Chartres-BoulevarddelaCourtille-C277.2_France	48.44	1.49	1840	1	2
 GVA47_Fra_110	horse	male	Chartres-BoulevarddelaCourtille-C277.2_France	48.44	1.49	1840	0	0
 GVA48_Fra_110	horse	male	Chartres-BoulevarddelaCourtille-C277.2_France	48.44	1.49	1840	0	0
@@ -415,7 +415,7 @@ Ushx9_Rus_m1075	horse	male	UshgiinUvur_Mongolia	49.66	99.93	3025	0	0
 VHR010_UK_600	horse	female	BroughOfDeerness_UnitedKingdom	58.96	-2.7	1350	0	0
 VHR011_UK_650	horse	male	BroughOfDeerness_UnitedKingdom	58.96	-2.7	1350	0	0
 VHR017_UK_1100	horse	male	Quoygrew(ruralsettlement_Orkney_Scotland)_UK	59.34	-2.97	850	0	0
-VHR031_Ice_955	horse	female	Granastadir_Iceland	65.27	-18.24	995	0	0
+VHR031_Ice_955	horse	female	Granastadir_Iceland	65.27	-18.24	1005	0	0
 VHR037_UK_600	horse	male	BroughOfDeerness_UnitedKingdom	58.96	-2.7	1350	0	0
 VHR062_UK_600	horse	female	BroughOfDeerness_UnitedKingdom	58.96	-2.7	1350	0	0
 VHR102_Ice_952	horse	male	Berufjordur(Bardastrandasysla(Westfjoords)_Iceland	65.53	-22.12	998	0	0
