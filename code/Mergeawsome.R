@@ -254,28 +254,28 @@ if(length(grep("ANC",names(data1)))>0){
   
 basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
     addTiles(tilesURL) %>%
-    fitBounds(min(datamap1$Longitude)+1,min(datamap1$Latitude)+1,max(datamap1$Longitude)-1,max(datamap1$Latitude)-1) %>%
+    fitBounds(min(datamap1$LONGITUDE)+1,min(datamap1$LATITUDE)+1,max(datamap1$LONGITUDE)-1,max(datamap1$LATITUDE)-1) %>%
     addResetMapButton() %>% addMiniMap(width=100,height=100,toggleDisplay = TRUE,position = "topright")
   maxValue=1
   ancescomp=names(datamap1)[grep("ANC",names(datamap1))]
   ancesmap=basemap %>%
     addMinicharts(
-      datamap1$Longitude, datamap1$Latitude,
-      chartdata =  datamap1[,ancescomp],
+      datamap1$LONGITUDE, datamap1$LATITUDE,
+      chartdata =  data.frame(lapply(datamap1[,ancescomp],as.numeric)),
       maxValues = maxValue,
       type ="pie",legend=TRUE,
       colorPalette = brewer.pal(11, "RdYlGn")[c(1,5,11,3,9,2,8,4)],
       popup = popupArgs(
         labels = datamap1$ancescomp,
         html = paste0(
-          "<div>","<h6>","<br>",datamap1$Sample,"<h6>",
-          "<h7>","Sex: ",datamap1$Sex,"<br>",
-          "Species: ",datamap1$Species,"<br>",
-          "AGE: ",datamap1$Age,"<br>",
-          "Count: ",datamap1$Count,"</div>"
+          "<div>","<h6>","<br>",datamap1$SAMPLE,"<h6>",
+          "<h7>","Sex: ",datamap1$SEX,"<br>",
+          "Species: ",datamap1$SPECIES,"<br>",
+          "AGE: ",datamap1$AGE,"<br>",
+          "Count: ",datamap1$COUNT,"</div>"
         )
       ),
-      width = 10*sqrt(datamap1$Count),transitionTime = 0
+      width = 10*sqrt(datamap1$COUNT),transitionTime = 0
     ) %>%
     addLegendSize(position = "bottomleft",col="black",fillColor="white",baseSize = quantile(sqrt(datamap$Count),0.98),
                   values = sizes,shape="circle",orientation="horizontal",breaks=4
@@ -380,7 +380,7 @@ drawpca=function(data,sex,species,st,end,pca,lat1,lat2,log1,log2,pc1,pc2){
 }
 
 #######plot grid in the map
-gridmap=function(data,gra,type=NULL,drop=drop){
+gridmap=function(data,gra,type=NULL,comp=NULL,drop=drop){
   chc=c("SAMPLE","SPECIES","SEX")
   gra=as.numeric(gra)
   data$LATITUDE=as.numeric(data$LATITUDE)
@@ -427,8 +427,12 @@ gridmap=function(data,gra,type=NULL,drop=drop){
     latlogtab$AGE=as.numeric(latlogtab$AGE)
     latlogtab$Count=as.numeric(latlogtab$Count)
     as.data.frame(latlogtab)
-  }else if(!is.null(type) & length(grep(type,names(data)))>0){
-    ancname=names(data)[grep(type,names(data))]
+  }else if(!is.null(type) & length(comp)>0){
+    if(length(comp)<length(grep(type,names(data),value = T))){
+      ancname=c(comp,"NA")
+    }else{
+      ancname=comp#
+    }
     a=matrix(0,ncol=length(ancname)+1,nrow=nrow(latlog))
     b=matrix(NA,ncol=4,nrow=nrow(latlog))
     colnames(a)=c("Count",ancname)
@@ -437,14 +441,18 @@ gridmap=function(data,gra,type=NULL,drop=drop){
     for(i in 1:nrow(latlogtab)){
       ranks<-data[data$LONGITUDE>=latlog[i,2] & data$LONGITUDE<(latlog[i,2]+gra) & 
                     data$LATITUDE>=latlog[i,1] & data$LATITUDE<(latlog[i,1]+gra),]
+      
       if(nrow(ranks)>0){
         latlogtab[i,"Count"]=sum(ranks$Count,na.rm=T)
         latlogtab[i,chc]=apply(ranks[,chc],2,function(x) paste(x, collapse=", "))
         latlogtab[i,"AGE"] =mean(ranks$AGE, na.rm=T)
-        latlogtab[i,ancname]=apply(ranks[,ancname],2,function(x) round(mean(x),2))
+        latlogtab[i,comp]=apply(ranks[,comp],2,function(x) round(mean(x),2))
         }        
     }
     latlogtab=as.data.frame(latlogtab,stringsAsFactors=FALSE)
+    if(length(comp)<length(grep(type,names(data)))){
+      latlogtab[,"NA"]=1-apply(latlogtab[,comp],1,function(x) sum(as.numeric(x)))
+    }
     latlogtab$SITE=paste("Site",seq(1,nrow(latlogtab)),sep="")
     latlogtab$SecondSite=paste("Site",seq(1,nrow(latlogtab)),sep="")
     latlogtab$LATITUDE=as.numeric(latlogtab$LATITUDE)
@@ -456,7 +464,7 @@ gridmap=function(data,gra,type=NULL,drop=drop){
   }
 }
 ###gridplot
-gridplot=function(data,st,end,grindsize,type,path){
+gridplot=function(data,st,end,grindsize,type,comp=NULL,path){
   st=floor(st/10)*10
   end=ceiling(end/10)*10
   if(end-st>grindsize){
@@ -476,17 +484,22 @@ gridplot=function(data,st,end,grindsize,type,path){
     fitBounds(min(data$LONGITUDE),min(data$LATITUDE),max(data$LONGITUDE),max(data$LATITUDE))
   foreach(i=1:nrow(timtab)) %do% {
      datamap=data[data$AGE>=as.numeric(timtab[i,1]) & data$AGE<as.numeric(timtab[i,2]),]
-    if(type=="SNP" & !is.null(datamap) & nrow(datamap)>0 ){
+    if(type=="SNP" & !nrow(datamap)>0 & nrow(datamap)>0 ){
       coltyp=c(brewer.pal(11, "RdYlGn")[c(1,9,3,5,6)])
-      snpname=getsnpname(data)
+      snpname=getsnpname(datamap)
       chartdata = cbind(datamap %>% select(starts_with(type)),datamap[,"NA"])
-    }else if(type=="ANC"& nrow(datamap)>0 ){
+    }else if(type=="ANC"& nrow(datamap)>0 &length(comp)==length(grep("ANC",names(datamap),value = T))){
       coltyp=c(brewer.pal(11, "Spectral")[c(1,5,11,3,9,2,8,4)])
       snpname="ANC"
-      chartdata=datamap %>% select(starts_with(type))
+     # chartdata=datamap %>% select(starts_with(type))
+      chartdata=datamap[,comp]
+    }else if(type=="ANC"& nrow(datamap)>0 &length(comp)<length(grep("ANC",names(datamap),value = T))){
+      chartdata=cbind(datamap[,comp],1-apply(datamap[,comp],1,sum))
+      colnames(chartdata)=c(comp,"NA")
+      snpname="ANC"
+      coltyp=c(brewer.pal(11, "Spectral")[c(1,5,11,3,9,2,8,4)])
     }
-    
-    if(nrow(datamap)>0){
+    if(nrow(datamap)>0 &!is.na(snpname)){
       piemap=basemap %>%
         addMinicharts(
           datamap$LONGITUDE, datamap$LATITUDE,
@@ -516,6 +529,33 @@ gridplot=function(data,st,end,grindsize,type,path){
       htmlwidgets::saveWidget(basemap,paste(path,"/",timtab[i,2],"-",timtab[i,1],"BP-",snpname,".html",sep=""))
     }
   }
+}
+gridplotMap=function(data,st,end,path){
+  if(nrow(data)>0){
+    datamap=data[data$AGE>=st &data$AGE<=end,]
+    tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+    basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
+      addTiles(tilesURL) %>%
+      fitBounds(min(datamap$LONGITUDE),min(datamap$LATITUDE),max(datamap$LONGITUDE),max(datamap$LATITUDE))
+    colorpal <- colorNumeric("Set1", datamap$AGE)
+    sizes <- sizeNumeric((datamap$Count), baseSize = mean(datamap$Count))
+    map=basemap %>%
+      addCircleMarkers(datamap$LONGITUDE, datamap$LATITUDE,color = "#777777",radius=sqrt(sizes)*3#datamap$Count*1.5
+                       ,weight=1,
+                       fillColor = colorpal(datamap$AGE), fillOpacity = 0.9,popup= paste0(
+                         "<div>","<h6>","<br>",datamap$SAMPLE,"<h6>",
+                         "<h7>","Sex: ",datamap$SEX,"<br>",
+                         "Species: ",datamap$SPECIES,"<br>",
+                         "AGE: ",datamap$AGE,"<br>",
+                         "Count: ",datamap$Count,"</div>")
+      ) %>%
+      addLegendSize(position = "bottomleft",col="black",fillColor="white",baseSize =min(sizeNumeric(datamap$Count, baseSize = mean(datamap$Count)*4)),
+                    values = sizeNumeric((datamap$Count), baseSize = mean(datamap$Count)),shape="circle",orientation="horizontal",breaks=5) %>%
+      addLegendNumeric(position = "bottomright",
+                       pal = colorpal, values = datamap$AGE)
+    
+    saveWidget(map,paste(path,"/","Smap",st,"-",end,"-map.html",sep=""))
+  }else{NULL}
 }
 ###freqplot
 samtimeSD=function(indata){

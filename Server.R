@@ -205,6 +205,35 @@ server <- function(input, output,session)({
                                                                  %in% first_layer_ids]
     }
   })
+  ###########################select output folder################################
+  TherootsAS <- reactive({
+    rootAS <- input$rootAS
+    req(rootAS, dir.exists(rootAS))
+    
+    if(length(rootAS) == 0 || rootAS == ""){
+      volumes <- getVolumes()()
+      c(volumes)
+    } else{
+      c(project_root = rootAS)
+    }
+  })
+  
+  Thesheets_dirAS <- reactive({
+    shinyDirChoose(input, 'sheets_dirAS', roots = TherootsAS(), session = session)
+    parseDirPath(roots = TherootsAS(), input$sheets_dirAS)
+  })
+  
+  output$sheets_dirAS <- renderPrint({
+    Thesheets_dirAS()
+  }) 
+  #######down grid figures######
+  observeEvent(input$Downs, {
+    req(filteredData(),input$mapage)
+    outpath=Thesheets_dirAS()
+	if(input$mapage[2]>input$mapage[1] &nrow(filteredData())>0){
+    gridplotMap(filteredData(),as.numeric(input$mapage[1]),as.numeric(input$mapage[2]),outpath)
+	}else{NULL}
+  })
   ############################pie map############################################  
   ################ Render UIs for Panel 4 (pie)#################################
   output$pieoutsp <- renderUI({
@@ -841,7 +870,7 @@ server <- function(input, output,session)({
           type ="pie",showLabels = input$labels1,legend=TRUE,legendPosition="bottomright",
           colorPalette = brewer.pal(11, input$colors2)[c(2,5,11,1,9,3,8,4)],
           popup = popupArgs(
-            labels = input$ancescomp,
+            #labels = input$ancecomp,
             html = labelpop(filteredData2(),input$anceslab
             )
           ),
@@ -868,23 +897,34 @@ server <- function(input, output,session)({
   ############addgrid map and merge###############
   griddataanc1<- reactive({
     req(filteredData2())
-    req(input$Gridanc)
-	if(length(filteredData2())>0 &input$Gridanc>0 &input$anceage[2]-input$anceage[1]>0){
-    gridmap(filteredData2(),input$Gridanc,type="ANC")
+    req(input$Gridanc,input$ancecomp)
+	if(length(filteredData2())>1 &input$Gridanc>0&input$anceage[2]-input$anceage[1]>0){
+    gridmap(filteredData2(),input$Gridanc,type="ANC",comp=input$ancecomp)
 	}else{NULL}
   })
+
   observe({
-    if(input$Gridanc>0){
+  req(griddataanc1())
+    if(input$Gridanc>0 & length(input$ancecomp)==length(grep("ANC",names(filteredData2())))){
       leafletProxy("drawance",data=griddataanc1()) %>%
         clearMarkers() %>% clearControls() %>%
-        removeMinicharts(layerId = filteredData2()$SITE) %>%
+        removeMinicharts(layerId = filteredData2()$SITE) %>%addGraticule(interval = input$Gridanc, style = list(color = "#FF0000", weight = 0.1,fillOpacity=0.1)) %>%
         addMinicharts(as.numeric(griddataanc1()$LONGITUDE), as.numeric(griddataanc1()$LATITUDE),
-                      chartdata=data.frame(lapply(griddataanc1()[,names(griddataanc1())[grep("ANC",names(griddataanc1()))]],as.numeric)),type="pie",
+                      chartdata=data.frame(lapply(griddataanc1()[,grep("ANC",names(griddataanc1()),value=TRUE)],as.numeric)),type="pie",
                       colorPalette = brewer.pal(11, input$colors2)[c(2,5,11,1,9,3,8,4)],
-                      width = 10*sqrt(as.numeric(griddataanc1()$Count)))%>%
-        addGraticule(interval = input$Gridanc, style = list(color = "#FF0000", weight = 0.1,fillOpacity=0.1))
-    }
+                      width = 10*sqrt(as.numeric(griddataanc1()$Count)))
+    }else if(input$Gridanc>0 & length(input$ancecomp)>0 &length(input$ancecomp)<length(grep("ANC",names(filteredData2())))){
+	leafletProxy("drawance",data=griddataanc1()) %>%
+        clearMarkers() %>% clearControls() %>%
+        removeMinicharts(layerId = filteredData2()$SITE)%>%
+        addGraticule(interval = input$Gridanc, style = list(color = "#FF0000", weight = 0.1,fillOpacity=0.1)) %>%
+        addMinicharts(as.numeric(griddataanc1()$LONGITUDE), as.numeric(griddataanc1()$LATITUDE),
+                      chartdata=data.frame(lapply(griddataanc1()[,c(grep("ANC",names(griddataanc1()),value=TRUE),"NA")],as.numeric)),type="pie",
+                      colorPalette = brewer.pal(11, input$colors2)[c(2,5,11,1,9,3,8,4)],
+                      width = 10*sqrt(as.numeric(griddataanc1()$Count)))
+	}
   })
+  
   output$anchead <- renderText({
     if (length(input$ancecomp)> 0){
       paste("Geographic distribution of ancestry components",sep=" ")
@@ -976,18 +1016,29 @@ server <- function(input, output,session)({
   ############addgrid map and merge###############
   griddataanc2<- reactive({
     req(filteredData22())
-    req(input$Gridanc)
+    req(input$Gridanc,input$ancecomp)
 	if(length(filteredData22())>0 &input$Gridanc>0 &input$anceage[2]-input$anceage[1]>0){
-    gridmap(filteredData22(),input$Gridanc,type="ANC")
+    gridmap(filteredData22(),input$Gridanc,type="ANC",comp=input$ancecomp)
 	}else{NULL}
   })
   observe({
-    if(input$Gridanc>0){
+   req(griddataanc2())
+   req(filteredData22())
+    if(input$Gridanc>0 &length(input$ancecomp)==length(grep("ANC",names(filteredData22())))){
+      leafletProxy("drawance2",data=griddataanc2()) %>%
+        clearMarkers() %>% clearControls() %>%
+        removeMinicharts(layerId = filteredData22()$SITE) %>%
+		addGraticule(interval = input$Gridanc, style = list(color = "#FF0000", weight = 0.1,fillOpacity=0.1)) %>%
+        addMinicharts(as.numeric(griddataanc2()$LONGITUDE), as.numeric(griddataanc2()$LATITUDE),
+                      chartdata=data.frame(lapply(griddataanc2()[,input$ancecomp],as.numeric)),type="pie",
+                      colorPalette = brewer.pal(11, input$colors2)[c(2,5,11,1,9,3,8,4)],
+                      width = 10*sqrt(as.numeric(griddataanc2()$Count)))
+    }else if(input$Gridanc>0 &length(input$ancecomp)<length(grep("ANC",names(filteredData22())))){
       leafletProxy("drawance2",data=griddataanc2()) %>%
         clearMarkers() %>% clearControls() %>%
         removeMinicharts(layerId = filteredData22()$SITE) %>%
         addMinicharts(as.numeric(griddataanc2()$LONGITUDE), as.numeric(griddataanc2()$LATITUDE),
-                      chartdata=data.frame(lapply(griddataanc2()[,names(griddataanc2())[grep("ANC",names(griddataanc2()))]],as.numeric)),type="pie",
+                      chartdata=data.frame(lapply(griddataanc2()[,c(grep("ANC",names(griddataanc2()),value=TRUE),"NA")],as.numeric)),type="pie",
                       colorPalette = brewer.pal(11, input$colors2)[c(2,5,11,1,9,3,8,4)],
                       width = 10*sqrt(as.numeric(griddataanc2()$Count)))%>%
         addGraticule(interval = input$Gridanc, style = list(color = "#FF0000", weight = 0.1,fillOpacity=0.1))
@@ -1019,7 +1070,7 @@ server <- function(input, output,session)({
     req(filteredData2T())
     outpath=Thesheets_dirA()
 	if(input$anceage[2]-input$anceage[1]>0){
-    gridplot(filteredData2T(),as.numeric(input$anceage[1]),as.numeric(input$anceage[2]),input$GridSizea,type="ANC",outpath)
+    gridplot(filteredData2T(),as.numeric(input$anceage[1]),as.numeric(input$anceage[2]),input$GridSizea,type="ANC",comp=input$ancecomp,outpath)
 	}else{NULL}
   })
   
@@ -1499,27 +1550,39 @@ server <- function(input, output,session)({
   ############addgrid map and merge###############
   griddatahap<- reactive({
     req(filteredData6())
-	req(input$hapty)
+	req(input$hapty,input$haphap)
     req(input$Gridhap)
 	if(length(filteredData6())>1 & input$Gridhap>0){
-    gridmap(filteredData6(),input$Gridhap,type=input$hapty)
+    gridmap(filteredData6(),input$Gridhap,type=input$hapty,comp=input$haphap)
 	}
   })
  observe({
   req(griddatahap())
-    if(input$Gridhap>0){
+    if(input$Gridhap>0 &length(input$haphap)==length(grep(input$hapty,names(filteredData6())))){
       leafletProxy("hapmap",data=griddatahap()) %>%
         clearMarkers() %>% clearControls() %>%
         removeMinicharts(layerId = filteredData6()$SITE) %>%
         addMinicharts(as.numeric(griddatahap()$LONGITUDE), as.numeric(griddatahap()$LATITUDE),legend=TRUE,legendPosition ="bottomright",
-                      chartdata=data.frame(lapply(griddatahap()[,names(griddatahap())[grep(input$hapty,names(griddatahap()))]],as.numeric)),type="pie",
+                      chartdata=data.frame(lapply(griddatahap()[,grep(input$hapty,names(griddatahap(),value=TRUE))],as.numeric)),type="pie",
                       colorPalette = get_color(rcolors$t2m_29lev, n = length(grep(input$hapty,names(griddatahap())))+1),
                       width = 2*sqrt(as.numeric(griddatahap()$Count)), popup = popupArgs(
                         #labels = input$haphap,
                         html = labelpop(griddatahap(),input$haplab
                         )))%>%
         addGraticule(interval = input$Gridhap, style = list(color = "#FF0000", weight = 0.1,fillOpacity=0.1))
-    }
+    }else if(input$Gridhap>0 &length(input$haphap)<length(grep(input$hapty,names(filteredData6())))){
+	leafletProxy("hapmap",data=griddatahap()) %>%
+        clearMarkers() %>% clearControls() %>%
+        removeMinicharts(layerId = filteredData6()$SITE) %>%
+        addMinicharts(as.numeric(griddatahap()$LONGITUDE), as.numeric(griddatahap()$LATITUDE),legend=TRUE,legendPosition ="bottomright",
+                      chartdata=data.frame(lapply(griddatahap()[,c(grep(input$hapty,names(griddatahap()),value=TRUE),"NA")],as.numeric)),type="pie",
+                      colorPalette = get_color(rcolors$t2m_29lev, n = length(grep(input$hapty,names(griddatahap())))+1),
+                      width = 2*sqrt(as.numeric(griddatahap()$Count)), popup = popupArgs(
+                        #labels = input$haphap,
+                        html = labelpop(griddatahap(),input$haplab
+                        )))%>%
+        addGraticule(interval = input$Gridhap, style = list(color = "#FF0000", weight = 0.1,fillOpacity=0.1))
+	}
   })
   ############################################### click response ##################################################
   observeEvent(input$hapmap_draw_new_feature,{

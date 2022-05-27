@@ -19,8 +19,7 @@ library(dplyr)
 library(rcolors)
 library(forcats)
 library(foreach)
-#library(doParallel)
-#library(parallel)
+
 
 source("code/Mergeawsome.R")
 ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
@@ -71,7 +70,10 @@ ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
                                               textColor = "white"),
                                             fluidRow(
                                               column(6,uiOutput("mapoutsx")),column(6,uiOutput("mapoutsp"))),uiOutput("mapout"),
-                                            uiOutput("mapoutlat"),uiOutput("mapoutlog"),uiOutput("mapoutlab")
+                                            uiOutput("mapoutlat"),uiOutput("mapoutlog"),uiOutput("mapoutlab"),
+											                      textInput("rootAS", "Please enter your project root:"),
+                                            shinyDirButton(id = 'sheets_dirAS', label = "Path to your output folder", title = "Folder Select"),
+                                            verbatimTextOutput("sheets_dirAS"),actionButton("Downs","Draw temporal map")
                            ),
                            # On panel 3 (pie)
                            conditionalPanel(condition = "input.tabselected == 3 ", 
@@ -141,7 +143,7 @@ ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
                                               column(6,uiOutput("ancesoutsx")),column(6,uiOutput("ancesoutsp"))),uiOutput("ancesout"),uiOutput("ancesout1"),
                                             uiOutput("ancesoutcut"),uiOutput("ancesoutlab"),
                                             numericInput("GridSizea","Time interval (years)",1000,min=100,max=10000),
-											textInput("rootA", "Please enter your project root:"),
+											                      textInput("rootA", "Please enter your project root:"),
                                             shinyDirButton(id = 'sheets_dirA', label = "Path to your output folder", title = "Sheets Folder Select"),
                                             verbatimTextOutput("sheets_dirA"),
                                             actionButton("Downa","Draw temporal maps"),
