@@ -527,7 +527,7 @@ gridplot=function(data,st,end,grindsize,type,comp=NULL,path){
         ) %>%
         addLegendSize(position = "bottomleft",col="black",fillColor="white",baseSize=quantile(sqrt(datamap$Count),0.9),
                       values = datamap$Count,shape="circle",orientation="horizontal",breaks=5) %>%
-        addLabelOnlyMarkers(min(data$LONGITUDE)+3,max(data$LATITUDE)+5,label=paste(timtab[i,2]," - ",timtab[i,1],"BC",sep=""),
+        addLabelOnlyMarkers(min(data$LONGITUDE)+3,max(data$LATITUDE)+5,label=paste(timtab[i,2]," - ",timtab[i,1],"BP",sep=""),
                             labelOptions = labelOptions(noHide = T, direction = 'top', textOnly = T,style=list("font-size"="20px","color" = "darkblue","font-style"="bold","box-shadow"="3px 3px rgba(0,0,0,0.25)", "border-color" = "rgba(0,0,0,0.5)")))
       
       htmlwidgets::saveWidget(piemap,paste(path,"/",timtab[i,2],"-",timtab[i,1],"BP-",snpname,".html",sep=""))

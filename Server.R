@@ -835,13 +835,13 @@ server <- function(input, output,session)({
     }else{NULL}
   })
   observe({
+  filteredData2()
     if (length(input$ancecomp) == 0) {
       data2 <- 1
-    } else if(length(input$ancecomp) <length(grep("ANC",names(taxonomy_table())))){
+    } else if(length(input$ancecomp) <length(grep("ANC",names(taxonomy_table()))) &!is.null(filteredData2())){
       data2=(cbind(filteredData2()[,input$ancecomp],(1-apply(as.data.frame(filteredData2()[,input$ancecomp]),1,sum))))
       colnames(data2)=c(input$ancecomp,"NA")
-    }
-    else{
+    }else if(length(input$ancecomp) ==length(grep("ANC",names(taxonomy_table())))&!is.null(filteredData2())){
       data2 <- filteredData2()[,input$ancecomp]
     }
     maxValue <- 1#max(as.matrix(data22))
@@ -954,13 +954,13 @@ server <- function(input, output,session)({
   }else{leaflet(data=NULL)}
   })
   observe({
+  req(filteredData22())
     if (length(input$ancecomp) == 0) {
       data22 <- 1
-    } else if(length(input$ancecomp) <length(grep("ANC",names(taxonomy_table())))){
+    } else if(length(input$ancecomp) <length(grep("ANC",names(taxonomy_table()))) &!is.null(filteredData22())){
       data22=(cbind(filteredData22()[,input$ancecomp],(1-apply(as.data.frame(filteredData22()[,input$ancecomp]),1,sum))))
       colnames(data22)=c(input$ancecomp,"NA")
-    }
-    else {
+    } else if( length(input$ancecomp) ==length(grep("ANC",names(taxonomy_table())))&!is.null(filteredData22())){
       data22 <- filteredData22()[,input$ancecomp]
     }
     maxValue <- 1
@@ -1552,7 +1552,7 @@ server <- function(input, output,session)({
     req(filteredData6())
 	req(input$hapty,input$haphap)
     req(input$Gridhap)
-	if(nrow(filteredData6())>1 & input$Gridhap>0 &length(input$Gridhap)>0){
+	if(nrow(filteredData6())>1 & input$Gridhap>0 &length(input$haphap)>0 &all(input$haphap%in%names(filteredData6()))){
     gridmap(filteredData6(),input$Gridhap,type=input$hapty,comp=input$haphap)
 	}
   })
@@ -1562,7 +1562,7 @@ server <- function(input, output,session)({
 	chartdata=data.frame(lapply(griddatahap()[,grep(input$hapty,names(griddatahap(),value=TRUE))],as.numeric))
 	 }else if(input$Gridhap>0 &length(input$haphap)<length(grep(input$hapty,names(filteredData6())))){
 	 chartdata=data.frame(lapply(griddatahap()[,c(grep(input$hapty,names(griddatahap()),value=TRUE),"NA")],as.numeric))
-	 }
+	 }else{NULL}
       leafletProxy("hapmap",data=griddatahap()) %>%
         clearMarkers() %>% clearControls() %>%
         removeMinicharts(layerId = filteredData6()$SITE) %>%

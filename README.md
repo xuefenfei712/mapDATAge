@@ -22,8 +22,8 @@ And a video tutorial is linked [here!](https://youtu.be/hx83sUsEYh8)
 
 `install.packages(packages, repo="http://cran.rstudio.org", dependencies=TRUE)`
 
-`install.packages("remotes")
-remotes::install_github("thomasp85/shinyFiles", upgrade = "never")`
+`install.packages("remotes")`
+`remotes::install_github("thomasp85/shinyFiles", upgrade = "never")`
 
 ### Launch mapDATAge from a URL or Github
 
