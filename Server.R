@@ -572,7 +572,7 @@ server <- function(input, output,session)({
   observeEvent(input$Down,{
     req(filteredData1())
     outpath=Thesheets_dir()
-    gridplot(filteredData1(),as.numeric(input$pieage[1]),as.numeric(input$pieage[2]),input$GridSize,type="SNP",outpath)
+    gridplot(filteredData1(),as.numeric(input$pieage[1]),as.numeric(input$pieage[2]),input$GridSize,type="SNP",comp=NULL,outpath)
   })
   
   ###################draw allele##########################  
@@ -1552,12 +1552,12 @@ server <- function(input, output,session)({
     req(filteredData6())
 	req(input$hapty,input$haphap)
     req(input$Gridhap)
-	if(length(filteredData6())>1 & input$Gridhap>0){
+	if(nrow(filteredData6())>1 & input$Gridhap>0 &length(input$Gridhap)>0){
     gridmap(filteredData6(),input$Gridhap,type=input$hapty,comp=input$haphap)
 	}
   })
  observe({
-  req(griddatahap())
+  req(griddatahap(),input$hapty)
     if(input$Gridhap>0 &length(input$haphap)==length(grep(input$hapty,names(filteredData6())))){
 	chartdata=data.frame(lapply(griddatahap()[,grep(input$hapty,names(griddatahap(),value=TRUE))],as.numeric))
 	 }else if(input$Gridhap>0 &length(input$haphap)<length(grep(input$hapty,names(filteredData6())))){
@@ -1676,7 +1676,33 @@ server <- function(input, output,session)({
     }
 	}
   })
+  ###download map
+  TherootsHS <- reactive({
+    root <- input$rootHS
+    req(root, dir.exists(root))
+    
+    if(length(root) == 0 || root == ""){
+      volumes <- getVolumes()()
+      c(volumes)
+    } else{
+      c(project_root = root)
+    }
+  })
   
+  Thesheets_dirHS <- reactive({
+    shinyDirChoose(input, 'sheets_dirHS', roots = TherootsHS(), session = session)
+    parseDirPath(roots = TherootsHS(), input$sheets_dirHS)
+  })
+  
+  output$sheets_dirHS <- renderPrint({
+    Thesheets_dirHS()
+  }) 
+  #######################down grid figures######
+  observeEvent(input$DownHS,{
+    req(filteredData6(),input$hapty,input$haphap)
+    outpath=Thesheets_dirHS()
+    gridplot(filteredData6(),as.numeric(input$hapage[1]),as.numeric(input$hapage[2]),0,type=input$hapty,comp=input$haphap,outpath)
+  })
   ########################################################automatic plot#########################
   ########################################read par table####################
   Para_table <- reactive({

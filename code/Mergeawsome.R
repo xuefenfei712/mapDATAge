@@ -442,16 +442,16 @@ gridmap=function(data,gra,type=NULL,comp=NULL,drop=drop){
       ranks<-data[data$LONGITUDE>=latlog[i,2] & data$LONGITUDE<(latlog[i,2]+gra) & 
                     data$LATITUDE>=latlog[i,1] & data$LATITUDE<(latlog[i,1]+gra),]
       
-      if(nrow(ranks)>0){
+      if(nrow(ranks)>0 & length(comp)>0){
         latlogtab[i,"Count"]=sum(ranks$Count,na.rm=T)
         latlogtab[i,chc]=apply(ranks[,chc],2,function(x) paste(x, collapse=", "))
         latlogtab[i,"AGE"] =mean(ranks$AGE, na.rm=T)
-        latlogtab[i,comp]=apply(ranks[,comp],2,function(x) round(mean(x),2))
+        latlogtab[i,comp]=apply(as.data.frame(ranks[,comp]),2,function(x) round(mean(x),2))
         }        
     }
     latlogtab=as.data.frame(latlogtab,stringsAsFactors=FALSE)
     if(length(comp)<length(grep(type,names(data)))){
-      latlogtab[,"NA"]=1-apply(latlogtab[,comp],1,function(x) sum(as.numeric(x)))
+      latlogtab[,"NA"]=1-apply(as.data.frame(latlogtab[,comp]),1,function(x) sum(as.numeric(x)))
     }
     latlogtab$SITE=paste("Site",seq(1,nrow(latlogtab)),sep="")
     latlogtab$SecondSite=paste("Site",seq(1,nrow(latlogtab)),sep="")
@@ -467,13 +467,13 @@ gridmap=function(data,gra,type=NULL,comp=NULL,drop=drop){
 gridplot=function(data,st,end,grindsize,type,comp=NULL,path){
   st=floor(st/10)*10
   end=ceiling(end/10)*10
-  if(end-st>grindsize){
+  if(end-st>grindsize &grindsize>0){
   tim1=seq(st,end-grindsize,grindsize)
   tim2=seq(st+grindsize,end,grindsize)
   }else{
   tim1=st;tim2=end
   }
-  timtab=cbind(tim1,tim2)
+  timtab=as.data.frame(cbind(tim1,tim2))
   data=data[data$Count>0,]
   #####draw pie map
   maxValue <- 1
@@ -484,22 +484,28 @@ gridplot=function(data,st,end,grindsize,type,comp=NULL,path){
     fitBounds(min(data$LONGITUDE),min(data$LATITUDE),max(data$LONGITUDE),max(data$LATITUDE))
   foreach(i=1:nrow(timtab)) %do% {
      datamap=data[data$AGE>=as.numeric(timtab[i,1]) & data$AGE<as.numeric(timtab[i,2]),]
-    if(type=="SNP" & !nrow(datamap)>0 & nrow(datamap)>0 ){
+    if(type=="SNP" & !is.null(datamap) & nrow(datamap)>0 ){
       coltyp=c(brewer.pal(11, "RdYlGn")[c(1,9,3,5,6)])
       snpname=getsnpname(datamap)
       chartdata = cbind(datamap %>% select(starts_with(type)),datamap[,"NA"])
-    }else if(type=="ANC"& nrow(datamap)>0 &length(comp)==length(grep("ANC",names(datamap),value = T))){
+      colnames(chartdata)=c(grep("SNP",names(datamap),value = T),"NA")
+    }else if(type!="SNP"& nrow(datamap)>0 &length(comp)==length(grep(type,names(datamap),value = T))){
       coltyp=c(brewer.pal(11, "Spectral")[c(1,5,11,3,9,2,8,4)])
-      snpname="ANC"
+      snpname=type
      # chartdata=datamap %>% select(starts_with(type))
       chartdata=datamap[,comp]
-    }else if(type=="ANC"& nrow(datamap)>0 &length(comp)<length(grep("ANC",names(datamap),value = T))){
+    }else if(type!="SNP"& nrow(datamap)>0 &length(comp)<length(grep(type,names(datamap),value = T))){
       chartdata=cbind(datamap[,comp],1-apply(datamap[,comp],1,sum))
       colnames(chartdata)=c(comp,"NA")
-      snpname="ANC"
-      coltyp=c(brewer.pal(11, "Spectral")[c(1,5,11,3,9,2,8,4)])
-    }
+      snpname=type
+     }else{snpname=NA}
     if(nrow(datamap)>0 &!is.na(snpname)){
+      if(type%in%c("SNP","ANC")){
+        coltyp=c(brewer.pal(11, "Spectral")[c(1,5,11,3,9,2,8,4)])
+      }else{ 
+        coltyp=c(get_color(rcolors$t2m_29lev, n = length(grep(type,names(datamap)))+1))
+     }
+      
       piemap=basemap %>%
         addMinicharts(
           datamap$LONGITUDE, datamap$LATITUDE,
@@ -517,10 +523,10 @@ gridplot=function(data,st,end,grindsize,type,comp=NULL,path){
               "Count: ",datamap$Count,"</div>"
             )
           ),
-          width = 10*sqrt(datamap$Count),transitionTime = 0
+          width = 5*sqrt(datamap$Count),transitionTime = 0
         ) %>%
-        addLegendSize(position = "bottomleft",col="black",fillColor="white",
-                      values = datamap$Count,shape="circle",orientation="horizontal",breaks=4) %>%
+        addLegendSize(position = "bottomleft",col="black",fillColor="white",baseSize=quantile(sqrt(datamap$Count),0.9),
+                      values = datamap$Count,shape="circle",orientation="horizontal",breaks=5) %>%
         addLabelOnlyMarkers(min(data$LONGITUDE)+3,max(data$LATITUDE)+5,label=paste(timtab[i,2]," - ",timtab[i,1],"BC",sep=""),
                             labelOptions = labelOptions(noHide = T, direction = 'top', textOnly = T,style=list("font-size"="20px","color" = "darkblue","font-style"="bold","box-shadow"="3px 3px rgba(0,0,0,0.25)", "border-color" = "rgba(0,0,0,0.5)")))
       
@@ -549,7 +555,7 @@ gridplotMap=function(data,st,end,path){
                          "AGE: ",datamap$AGE,"<br>",
                          "Count: ",datamap$Count,"</div>")
       ) %>%
-      addLegendSize(position = "bottomleft",col="black",fillColor="white",baseSize =min(sizeNumeric(datamap$Count, baseSize = mean(datamap$Count)*4)),
+      addLegendSize(position = "bottomleft",col="black",fillColor="white",baseSize =min(sizeNumeric(datamap$Count, baseSize = mean(datamap$Count)*2.5)),
                     values = sizeNumeric((datamap$Count), baseSize = mean(datamap$Count)),shape="circle",orientation="horizontal",breaks=5) %>%
       addLegendNumeric(position = "bottomright",
                        pal = colorpal, values = datamap$AGE)

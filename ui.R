@@ -198,6 +198,9 @@ ui=shinyUI(bootstrapPage(theme = shinytheme("sandstone"),
                                               column(6,uiOutput("hapoutsx")),column(6,uiOutput("hapoutsp"))),
                                             uiOutput("hapoutage"), uiOutput("hapoutlat"),uiOutput("hapoutlog"),
                                             uiOutput("hapouthap"),uiOutput("hapoutlab"),
+                                            textInput("rootHS", "Please enter your project root:"),
+                                            shinyDirButton(id = 'sheets_dirHS', label = "Path to your output folder", title = "Folder Select"),
+                                            verbatimTextOutput("sheets_dirHS"),actionButton("DownHS","Draw haplogroups map"),
                                             numericInput("Gridhap","Grid Size for geographic binning",0,min=0,max=10)
                            ),
                            ####on panel 9 
