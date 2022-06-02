@@ -1600,7 +1600,7 @@ server <- function(input, output,session)({
         plot.title = element_text(size=15, family="Arial"),plot.margin=unit(c(1,1,2,1),'lines'))
     })
     leafletProxy("hapmap",data=selected)%>% 
-      addCircleMarkers(lng=selected$Longitude,lat=selected$Latitude,
+      addCircleMarkers(lng=selected$LONGITUDE,lat=selected$LATITUDE,
                        color = "red",radius=sqrt(selected$Count)*2,weight=1,
                        fillOpacity = 0.5,            
                        layerId = (selected$SecondSite))
