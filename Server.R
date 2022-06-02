@@ -1559,30 +1559,21 @@ server <- function(input, output,session)({
  observe({
   req(griddatahap())
     if(input$Gridhap>0 &length(input$haphap)==length(grep(input$hapty,names(filteredData6())))){
+	chartdata=data.frame(lapply(griddatahap()[,grep(input$hapty,names(griddatahap(),value=TRUE))],as.numeric))
+	 }else if(input$Gridhap>0 &length(input$haphap)<length(grep(input$hapty,names(filteredData6())))){
+	 chartdata=data.frame(lapply(griddatahap()[,c(grep(input$hapty,names(griddatahap()),value=TRUE),"NA")],as.numeric))
+	 }
       leafletProxy("hapmap",data=griddatahap()) %>%
         clearMarkers() %>% clearControls() %>%
         removeMinicharts(layerId = filteredData6()$SITE) %>%
         addMinicharts(as.numeric(griddatahap()$LONGITUDE), as.numeric(griddatahap()$LATITUDE),legend=TRUE,legendPosition ="bottomright",
-                      chartdata=data.frame(lapply(griddatahap()[,grep(input$hapty,names(griddatahap(),value=TRUE))],as.numeric)),type="pie",
+                      chartdata=chartdata,type="pie",
                       colorPalette = get_color(rcolors$t2m_29lev, n = length(grep(input$hapty,names(griddatahap())))+1),
                       width = 2*sqrt(as.numeric(griddatahap()$Count)), popup = popupArgs(
                         #labels = input$haphap,
                         html = labelpop(griddatahap(),input$haplab
                         )))%>%
         addGraticule(interval = input$Gridhap, style = list(color = "#FF0000", weight = 0.1,fillOpacity=0.1))
-    }else if(input$Gridhap>0 &length(input$haphap)<length(grep(input$hapty,names(filteredData6())))){
-	leafletProxy("hapmap",data=griddatahap()) %>%
-        clearMarkers() %>% clearControls() %>%
-        removeMinicharts(layerId = filteredData6()$SITE) %>%
-        addMinicharts(as.numeric(griddatahap()$LONGITUDE), as.numeric(griddatahap()$LATITUDE),legend=TRUE,legendPosition ="bottomright",
-                      chartdata=data.frame(lapply(griddatahap()[,c(grep(input$hapty,names(griddatahap()),value=TRUE),"NA")],as.numeric)),type="pie",
-                      colorPalette = get_color(rcolors$t2m_29lev, n = length(grep(input$hapty,names(griddatahap())))+1),
-                      width = 2*sqrt(as.numeric(griddatahap()$Count)), popup = popupArgs(
-                        #labels = input$haphap,
-                        html = labelpop(griddatahap(),input$haplab
-                        )))%>%
-        addGraticule(interval = input$Gridhap, style = list(color = "#FF0000", weight = 0.1,fillOpacity=0.1))
-	}
   })
   ############################################### click response ##################################################
   observeEvent(input$hapmap_draw_new_feature,{
