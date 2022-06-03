@@ -1557,9 +1557,9 @@ server <- function(input, output,session)({
 	}
   })
  observe({
-  req(griddatahap(),input$hapty)
+  req(griddatahap(),input$hapty,input$haphap)
     if(input$Gridhap>0 &length(input$haphap)==length(grep(input$hapty,names(filteredData6())))){
-	chartdata=data.frame(lapply(griddatahap()[,grep(input$hapty,names(griddatahap(),value=TRUE))],as.numeric))
+	chartdata=data.frame(lapply(griddatahap()[,input$haphap],as.numeric))
 	 }else if(input$Gridhap>0 &length(input$haphap)<length(grep(input$hapty,names(filteredData6())))){
 	 chartdata=data.frame(lapply(griddatahap()[,c(grep(input$hapty,names(griddatahap()),value=TRUE),"NA")],as.numeric))
 	 }else{NULL}
