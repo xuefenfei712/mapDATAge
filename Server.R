@@ -1637,7 +1637,7 @@ server <- function(input, output,session)({
   })
   ############################################### click response ##################################################
   observeEvent(input$hapmap_draw_deleted_features,{
-  if(input$Gridhap==0){
+  if(input$Gridhap==0 &length(input$haphap>0)){
     # loop through list of one or more deleted features/ polygons
     for(feature in input$hapmap_draw_deleted_features$features){
       # get ids for locations within the bounding shape
@@ -1657,7 +1657,7 @@ server <- function(input, output,session)({
 	}
   })
    observeEvent(input$hapmap_draw_deleted_features,{
-  if(input$Gridhap>0){
+  if(input$Gridhap>0 &length(input$haphap>0)){
     # loop through list of one or more deleted features/ polygons
     for(feature in input$hapmap_draw_deleted_features$features){
       # get ids for locations within the bounding shape
