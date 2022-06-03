@@ -1578,7 +1578,7 @@ server <- function(input, output,session)({
   ############################################### click response ##################################################
   observeEvent(input$hapmap_draw_new_feature,{
     req(filteredData6())
-	if(input$Gridhap==0){
+	if(input$Gridhap==0 &length(input$haphap>0)){
     #Only add new layers for bounded locations
     found_in_bounds <- findLocations(shape = input$hapmap_draw_new_feature
                                      , location_coordinates = SpatialPointsDataFrame(filteredData6()[,c('LONGITUDE', 'LATITUDE')] , filteredData6())
@@ -1609,7 +1609,7 @@ server <- function(input, output,session)({
   #for grid
   observeEvent(input$hapmap_draw_new_feature,{
    # req(griddatahap())
-	if(as.numeric(input$Gridhap)>0){
+	if(as.numeric(input$Gridhap)>0 &length(input$haphap>0)){
     #Only add new layers for bounded locations
     found_in_bounds1 <- findLocations(shape = input$hapmap_draw_new_feature
                                      , location_coordinates = SpatialPointsDataFrame(griddatahap()[,c('LONGITUDE', 'LATITUDE')] , griddatahap())
