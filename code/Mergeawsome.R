@@ -495,7 +495,7 @@ gridplot=function(data,st,end,grindsize,type,comp=NULL,path){
      # chartdata=datamap %>% select(starts_with(type))
       chartdata=datamap[,comp]
     }else if(type!="SNP"& nrow(datamap)>0 &length(comp)<length(grep(type,names(datamap),value = T))){
-      chartdata=cbind(datamap[,comp],1-apply(datamap[,comp],1,sum))
+      chartdata=cbind(datamap[,comp],1-apply(as.data.frame(datamap[,comp]),1,sum))
       colnames(chartdata)=c(comp,"NA")
       snpname=type
      }else{snpname=NA}
@@ -503,7 +503,7 @@ gridplot=function(data,st,end,grindsize,type,comp=NULL,path){
       if(type%in%c("SNP","ANC")){
         coltyp=c(brewer.pal(11, "Spectral")[c(1,5,11,3,9,2,8,4)])
       }else{ 
-        coltyp=c(get_color(rcolors$t2m_29lev, n = length(grep(type,names(datamap)))+1))
+        coltyp=c(get_color(rcolors$t2m_29lev, n = length(comp)+1))
      }
       
       piemap=basemap %>%
