@@ -1561,14 +1561,14 @@ server <- function(input, output,session)({
     if(input$Gridhap>0 &length(input$haphap)==length(grep(input$hapty,names(filteredData6())))){
 	chartdata=data.frame(lapply(griddatahap()[,input$haphap],as.numeric))
 	 }else if(input$Gridhap>0 &length(input$haphap)<length(grep(input$hapty,names(filteredData6())))){
-	 chartdata=data.frame(lapply(griddatahap()[,c(grep(input$hapty,names(griddatahap()),value=TRUE),"NA")],as.numeric))
+	 chartdata=data.frame(lapply(griddatahap()[,c(grep(paste0(input$hapty,"_"),names(griddatahap()),value=TRUE),"NA")],as.numeric))
 	 }else{NULL}
       leafletProxy("hapmap",data=griddatahap()) %>%
         clearMarkers() %>% clearControls() %>%
         removeMinicharts(layerId = filteredData6()$SITE) %>%
         addMinicharts(as.numeric(griddatahap()$LONGITUDE), as.numeric(griddatahap()$LATITUDE),legend=TRUE,legendPosition ="bottomright",
                       chartdata=chartdata,type="pie",
-                      colorPalette = get_color(rcolors$t2m_29lev, n = length(grep(input$hapty,names(griddatahap())))+1),
+                      colorPalette = get_color(rcolors$t2m_29lev, n =  length(colnames(chartdata))+1),
                       width = 2*sqrt(as.numeric(griddatahap()$Count)), popup = popupArgs(
                         #labels = input$haphap,
                         html = labelpop(griddatahap(),input$haplab
