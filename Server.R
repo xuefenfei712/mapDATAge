@@ -8,7 +8,11 @@ server <- function(input, output,session)({
       read.table(input$in_table$datapath, header = T,
                  sep = "\t", stringsAsFactors = F,
                  quote = "", comment.char = "")
-    }
+    }else if (grepl(input$in_table$datapath, pattern = ".csv")){
+	read.csv(input$in_table$datapath, header = T,
+                 sep = ",", stringsAsFactors = F,
+                 quote = "", comment.char = "#")
+				 }
   })
   taxonomy_table <- reactive({
     req(tabl())
