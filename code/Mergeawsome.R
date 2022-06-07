@@ -530,9 +530,9 @@ gridplot=function(data,st,end,grindsize,type,comp=NULL,path){
         addLabelOnlyMarkers(min(data$LONGITUDE)+3,max(data$LATITUDE)+5,label=paste(timtab[i,2]," - ",timtab[i,1],"BP",sep=""),
                             labelOptions = labelOptions(noHide = T, direction = 'top', textOnly = T,style=list("font-size"="20px","color" = "darkblue","font-style"="bold","box-shadow"="3px 3px rgba(0,0,0,0.25)", "border-color" = "rgba(0,0,0,0.5)")))
       
-      htmlwidgets::saveWidget(piemap,paste(path,"/",timtab[i,2],"-",timtab[i,1],"BP-",snpname,".html",sep=""))
+      htmlwidgets::saveWidget(piemap,paste(path,"/",timtab[i,2],"-",timtab[i,1],"BP-",snpname,"-",paste(comp,collapse="-"),".html",sep=""))
     }else{
-      htmlwidgets::saveWidget(basemap,paste(path,"/",timtab[i,2],"-",timtab[i,1],"BP-",snpname,".html",sep=""))
+      htmlwidgets::saveWidget(basemap,paste(path,"/",timtab[i,2],"-",timtab[i,1],"BP-",snpname,"-",paste(comp,collapse="-"),".html",sep=""))
     }
   }
 }
