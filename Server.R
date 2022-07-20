@@ -90,8 +90,8 @@ server <- function(input, output,session)({
   # Reactive expression for the data subsetted to what the user selected
   filteredData <- reactive({
     req(input$mapage)
-	if(as.numeric(input$mapage[2])-as.numeric(input$mapage[1])>0 & as.numeric(input$maplat[2])-as.numeric(input$maplat[1]) & as.numeric(input$maplog[2])-as.numeric(input$maplog[1])>0){
-    Merge(taxonomy_table()[taxonomy_table()$SEX%in%input$mapsx & taxonomy_table()$SPECIES%in%input$mapsp & taxonomy_table()$AGE >= as.numeric(input$mapage[1]) & taxonomy_table()$AGE < as.numeric(input$mapage[2])
+	if(as.numeric(input$mapage[2])-as.numeric(input$mapage[1])>0 & as.numeric(input$maplat[2])-as.numeric(input$maplat[1])>0 & as.numeric(input$maplog[2])-as.numeric(input$maplog[1])>0){
+    Merge(taxonomy_table()[taxonomy_table()$SEX%in%input$mapsx & taxonomy_table()$SPECIES%in%input$mapsp & taxonomy_table()$AGE >= as.numeric(input$mapage[1]) & taxonomy_table()$AGE <= as.numeric(input$mapage[2])
                                  & taxonomy_table()$LATITUDE>=as.numeric(input$maplat[1]) & taxonomy_table()$LATITUDE<=as.numeric(input$maplat[2]) & taxonomy_table()$LONGITUDE>=as.numeric(input$maplog[1]) & taxonomy_table()$LONGITUDE<=as.numeric(input$maplog[2]),])
 								 }else{NULL}
   })
