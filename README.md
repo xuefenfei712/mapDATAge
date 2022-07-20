@@ -54,7 +54,7 @@ Xuexue Liu: xuexue.liu@univ-tlse3.fr
 
 ## Citation
 
-Xuexue Liu, Ludovic Orlando, mapDATAge: a ShinyR package to chart ancient DNA data through space and time.
+Xuexue Liu, Ludovic Orlando, mapDATAge: a ShinyR package to chart ancient DNA data through space and time. Bioinformatics, 2022; btac425. [!https://doi.org/10.1093/bioinformatics/btac425](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/btac425/6623404)
 
 Centre for Anthropobiology and Genomics of Toulouse (CAGT) (https://cagt.cnrs.fr/)
 
