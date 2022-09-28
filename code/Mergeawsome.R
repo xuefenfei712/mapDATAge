@@ -536,14 +536,14 @@ gridplot=function(data,st,end,grindsize,type,comp=NULL,path){
     }
   }
 }
-gridplotMap=function(data,st,end,path){
+gridplotMap=function(data,st,end,col,path){
   if(nrow(data)>0){
     datamap=data[data$AGE>=st &data$AGE<=end,]
     tilesURL <- "http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
     basemap <- leaflet(options = leafletOptions(zoomControl = FALSE, minZoom = 2, maxZoom = 5, dragging = T)) %>%
       addTiles(tilesURL) %>%
       fitBounds(min(datamap$LONGITUDE),min(datamap$LATITUDE),max(datamap$LONGITUDE),max(datamap$LATITUDE))
-    colorpal <- colorNumeric("Set1", datamap$AGE)
+    colorpal <- colorNumeric(col, datamap$AGE)
     sizes <- sizeNumeric((datamap$Count), baseSize = mean(datamap$Count))
     map=basemap %>%
       addCircleMarkers(datamap$LONGITUDE, datamap$LATITUDE,color = "#777777",radius=sqrt(sizes)*3#datamap$Count*1.5
