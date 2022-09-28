@@ -235,7 +235,7 @@ server <- function(input, output,session)({
     req(filteredData(),input$mapage)
     outpath=Thesheets_dirAS()
 	if(input$mapage[2]>input$mapage[1] &nrow(filteredData())>0){
-    gridplotMap(filteredData(),as.numeric(input$mapage[1]),as.numeric(input$mapage[2]),outpath)
+    gridplotMap(filteredData(),as.numeric(input$mapage[1]),as.numeric(input$mapage[2]),input$colors,outpath)
 	}else{NULL}
   })
   ############################pie map############################################  
